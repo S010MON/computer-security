@@ -30,7 +30,7 @@ To see the swagger UI to interact with the server, use your browser and navigate
 localhost/docs
 ```
 You should see this:
-!
+![](https://github.com/S010MON/computer-security/blob/main/screenshots/server_swagger.png)
 
 ### 1.c. Troubleshooting
 
