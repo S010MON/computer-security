@@ -30,7 +30,7 @@ To see the swagger UI to interact with the server, use your browser and navigate
 localhost/docs
 ```
 You should see this:
-
+!
 
 ### 1.c. Troubleshooting
 
@@ -65,7 +65,7 @@ python       3.9       3c6a9a896255   2 days ago       915MB
 
 #### 1.c.3 Stopping containers
 ```
-docker stop <CONTAINER_NAME>
+docker stop <CONTAINER_NAME:TAG>
 ```
 
 #### 1.c.4 Removing containers
