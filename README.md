@@ -7,10 +7,9 @@ There are 4 request URLs:
  - ![/decrease](https://github.com/S010MON/computer-security/blob/main/README.md#decrease)
  - ![/logout](https://github.com/S010MON/computer-security/blob/main/README.md#logout)
 
-A System diagram is shown below:
-![](https://github.com/S010MON/computer-security/blob/main/screenshots/action_diagram.jpg)
 
 ## /auth
+![](https://github.com/S010MON/computer-security/blob/main/screenshots/auth.jpg)
 Query:
 ```json
 {
@@ -37,6 +36,7 @@ Response:
 ```
 
 ## /increase
+![](https://github.com/S010MON/computer-security/blob/main/screenshots/increase.jpg)
 Query:
 ```json
 {
@@ -54,6 +54,7 @@ Response:
 ```
 
 ## /decrease
+![](https://github.com/S010MON/computer-security/blob/main/screenshots/decrease.jpg)
 Query:
 ```json
 {
