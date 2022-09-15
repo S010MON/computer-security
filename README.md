@@ -7,6 +7,8 @@ There are 4 request URLs:
  - ![/decrease]()
  - ![/logout]()
 
+A System diagram is shown below:
+![](https://github.com/S010MON/computer-security/blob/main/screenshots/action_diagram.jpg)
 
 ## /auth
 Query:
