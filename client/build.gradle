@@ -13,6 +13,16 @@ sourceCompatibility = '17'
 application {
 	mainClass = 'server.client.ClientApplication'
 }
+
+javafx {
+	version = '17'
+	modules = [ 'javafx.controls', 'javafx.fxml' ]
+}
+
+ext {
+	junitVersion = '5.8.2'
+}
+
 configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
@@ -27,7 +37,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter'
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
+	testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
 }
 
 tasks.named('test') {
