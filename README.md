@@ -37,6 +37,7 @@ Response:
 ```
 
 ## /increase
+Query:
 ```json
 {
   "id": 1
@@ -53,6 +54,7 @@ Response:
 ```
 
 ## /decrease
+Query:
 ```json
 {
   "id": 1
@@ -69,6 +71,7 @@ Response:
 ```
 
 ## /logout
+Query:
 ```json
 {
   "id": 1
