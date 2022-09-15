@@ -2,10 +2,10 @@
 
 ## API Specification
 There are 4 request URLs:
- - ![/auth]()
- - ![/increase]()
- - ![/decrease]()
- - ![/logout]()
+ - ![/auth](https://github.com/S010MON/computer-security/blob/main/README.md#auth)
+ - ![/increase](https://github.com/S010MON/computer-security/blob/main/README.md#increase)
+ - ![/decrease](https://github.com/S010MON/computer-security/blob/main/README.md#decrease)
+ - ![/logout](https://github.com/S010MON/computer-security/blob/main/README.md#logout)
 
 A System diagram is shown below:
 ![](https://github.com/S010MON/computer-security/blob/main/screenshots/action_diagram.jpg)
