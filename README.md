@@ -54,7 +54,7 @@ Response:
 ```
 
 ## /decrease
-![](https://github.com/S010MON/computer-security/blob/main/screenshots/decrease.jpg)
+![](https://github.com/S010MON/computer-security/blob/main/screenshots/action_diagram-_decrease.jpg)
 Query:
 ```json
 {
