@@ -54,7 +54,7 @@ Response:
 ```
 
 ## /decrease
-![](https://github.com/S010MON/computer-security/blob/main/screenshots/action_diagram-_decrease.jpg)
+![](https://github.com/S010MON/computer-security/blob/main/screenshots/decrease.jpg)
 Query:
 ```json
 {
@@ -72,6 +72,7 @@ Response:
 ```
 
 ## /logout
+![](https://github.com/S010MON/computer-security/blob/main/screenshots/logout.jpg)
 Query:
 ```json
 {
