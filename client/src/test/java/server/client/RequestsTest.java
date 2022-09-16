@@ -18,31 +18,30 @@ public class RequestsTest
     @Test
     void testAuthQueryFormat()
     {
-        String id = "John";
-        String password = "Smith123";
         int delay = 100;
-        String steps = "[INCREASE 1" + ", " + "INCREASE 1]";
+        String steps = "[\"INCREASE 1\"" + ", " + "\"INCREASE 1\"]";
 
-        Request request = new Request("http://127.0.0.1/auth");
-        String generatedQuery = request.formatAuthRequestJSON(id, password, delay, steps);
+        Request request = new Request("http://127.0.0.1/");
+        String generatedQuery = request.formatAuthRequestBody(delay, steps);
 
-        String desiredQuery = "{id: John, password: Smith123, server: {ip: 127.0.0.1, port: -1}, " +
-                "actions: {delay: 100, steps: [INCREASE 1, INCREASE 1]}}";
+        String desiredQuery = "{\"server\": {\"ip\": \"127.0.0.1\", \"port\": -1}, " +
+                "\"actions\": {\"delay\": 100, \"steps\": [\"INCREASE 1\", \"INCREASE 1\"]}}";
         assertEquals(generatedQuery, desiredQuery);
     }
 
     @Test
     void testAuthPostRequest()
     {
-        String id = "John";
-        String password = "Smith123";
+        int id = 1;
+        String password = "pass";
         int delay = 100;
-        String steps = "[Increase1" + ", " + "Increase1]";
+        String steps = "[\"INCREASE 1\"" + ", " + "\"INCREASE 1\"]";
 
-        Request request = new Request("http://127.0.0.1/auth");
-        String generatedQuery = request.formatAuthRequestJSON(id, password, delay, steps);
-        int responseCode = request.postRequest(generatedQuery);
+        Request request = new Request("http://127.0.0.1/");
+        String generatedBody = request.formatAuthRequestBody(delay, steps);
+        int responseCode = request.postRequest(id, password, generatedBody);
         System.out.println(responseCode);
         assertEquals(responseCode, 201);
+
     }
 }

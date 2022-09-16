@@ -2,23 +2,21 @@ package server.client;
 
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.InetAddress;
 import java.net.URL;
 
 public class Request
 {
     private URL url;
-    private String ip;
     private HttpURLConnection conn;
-    private final int CONNECTION_FAILURE = 404;
+    private final int FAILURE_CODE = 404;
 
-    public Request(String url)
+    public Request(String baseURL)
     {
         try
         {
-            this.url = new URL(url);
-            this.conn = (HttpURLConnection) this.url.openConnection();
-            this.ip = this.url.getHost();
+            this.url = new URL(baseURL);
+
+            conn = (HttpURLConnection) this.url.openConnection();
         }
         catch(Exception e)
         {
@@ -26,26 +24,33 @@ public class Request
         }
     }
 
-    public int getRequest()
-    {
+
+    public int getRequest() {
         try
         {
             conn.setRequestMethod("GET");
             conn.connect();
+
             System.out.println(conn.getResponseMessage());
+
+            //Safety
+            conn.disconnect();
+
             return conn.getResponseCode();
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             e.printStackTrace();
         }
-        return CONNECTION_FAILURE;
+        return FAILURE_CODE;
     }
 
-    public int postRequest(String jsonString)
+    public int postRequest(int id, String password, String jsonBodyString)
     {
         try
         {
+            this.url = new URL(this.url.toString() + "auth?id=" + id + "&password=" + password);
+            HttpURLConnection conn = (HttpURLConnection) this.url.openConnection();
             conn.setRequestMethod("POST");
 
             //Set the request header content type
@@ -57,27 +62,31 @@ public class Request
 
             //Write JSON string to output stream as bytes
             OutputStream os = conn.getOutputStream();
-            byte[] input = jsonString.getBytes("utf-8");
+            byte[] input = jsonBodyString.getBytes("utf-8");
             os.write(input, 0, input.length);
 
             //Read response
             String response = conn.getResponseMessage();
+            System.out.println(response);
+
+            //Safety
+            conn.disconnect();
+
             return conn.getResponseCode();
         }
         catch(Exception e)
         {
             e.printStackTrace();
         }
-        return CONNECTION_FAILURE;
+        return FAILURE_CODE;
     }
 
-    public String formatAuthRequestJSON(String id, String password, int delay, String steps)
+    public String formatAuthRequestBody(int delay, String steps)
     {
-        String userInfo = "{id: " + id + ", password: " + password + ", ";
-        String serverInfo = "server: {ip: " + ip.toString() + ", port: " + url.getPort() + "}, ";
-        String actionsInfo = "actions: {delay: " + Integer.toString(delay) +
-                            ", steps: " + steps + "}}";
-        String request = userInfo + serverInfo + actionsInfo;
+        String serverInfo = "{\"server\": {\"ip\": " + "\"" + this.url.getHost() + "\"" + ", \"port\": " + url.getPort() + "}, ";
+        String actionsInfo = "\"actions\": {\"delay\": " + delay +
+                            ", \"steps\": " + steps + "}}";
+        String request =serverInfo + actionsInfo;
         System.out.println(request);
         return request;
     }
