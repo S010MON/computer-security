@@ -14,21 +14,24 @@ public class ClientApplication {
 	{
 		SpringApplication.run(ClientApplication.class, args);
 
-		try
-		{
-			URL url = new URL("http://127.0.0.1/");
-			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-			conn.setRequestMethod("GET");
-			conn.connect();
+		Client client = new Client();
+		client.authorize("john", "silver");
 
-			int responseCode = conn.getResponseCode();
-			System.out.println("Response Code: " + responseCode);
-			System.out.println("Response message: " + conn.getResponseMessage());
-		}
-		catch(IOException e)
-		{
-			e.printStackTrace();
-		}
+//		try
+//		{
+//			URL url = new URL("http://127.0.0.1/");
+//			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+//			conn.setRequestMethod("GET");
+//			conn.connect();
+//
+//			int responseCode = conn.getResponseCode();
+//			System.out.println("Response Code: " + responseCode);
+//			System.out.println("Response message: " + conn.getResponseMessage());
+//		}
+//		catch(IOException e)
+//		{
+//			e.printStackTrace();
+//		}
 	}
 
 }
