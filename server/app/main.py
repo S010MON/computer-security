@@ -14,42 +14,61 @@ class Actions(BaseModel):
     delay: int
     steps: list
 
+class Client:
 
-class User:
-
-    def __init__(self, id: int, jwt: str, server: Server, actions: Actions):
-        self.id = id
+    def __init__(self, jwt: str, server: Server, actions: Actions) -> None:
         self.jwt = jwt
-        self.counter = 0
         self.server = server
         self.actions = actions
         self.actions.steps.reverse()
         self.timeout = time.time() + len(actions.steps) * actions.delay + 1
 
+
+class User:
+
+    def __init__(self, id: int, pwd_hash: str, jwt: str, server: Server, actions: Actions):
+        self.id = id
+        self.pwd_hash = pwd_hash
+        self.counter = 0
+        self.clients = {jwt:Client(jwt, server, actions)}
+
+
     def verified(self, ip: str, port: int, jwt: str) -> bool:
-        if self.server.ip != ip:
+
+        if jwt not in self.clients:
+            return False
+        
+        client = self.clients[jwt]
+        
+        if client.server.ip != ip:
             return False
 
         # if self.server.port != port:
         #     return False
 
-        if self.jwt != jwt:
+        if client.jwt != jwt:
             return False
 
-        if self.timeout <= time.time():
+        if client.timeout <= time.time():
             return False
 
         return True
+    
+    def new_client(self, jwt: str, server: Server, actions: Actions):
+        self.clients[jwt] = Client(jwt, server, actions)
 
-    def increase(self, amount: int) -> bool:
-        if len(self.actions.steps) == 0:
+    def increase(self, amount: int, jwt: str) -> bool:
+        
+        client = self.clients[jwt]
+
+        if len(client.actions.steps) == 0:
             return False
 
-        top_element = str(self.actions.steps.pop())
+        top_element = str(client.actions.steps.pop())
         action = top_element.split(" ")
 
         if action[0] != "INCREASE" or int(action[1]) != amount:
-            self.actions.steps.append(top_element)
+            client.actions.steps.append(top_element)
             return False
 
         self.counter += amount
@@ -57,15 +76,18 @@ class User:
         logging.info(f"{self.id} - increased by: {amount} to {self.counter}")
         return True
 
-    def decrease(self, amount: int):
-        if len(self.actions.steps) == 0:
+    def decrease(self, amount: int, jwt: str):
+
+        client = self.clients[jwt]
+
+        if len(client.actions.steps) == 0:
             return False
 
-        top_element = str(self.actions.steps.pop())
+        top_element = str(client.actions.steps.pop())
         action = top_element.split(" ")
 
         if action[0] != "DECREASE" or int(action[1]) != amount:
-            self.actions.steps.append(top_element)
+            client.actions.steps.append(top_element)
             return False
 
         self.counter -= amount
@@ -85,11 +107,19 @@ async def root():
 
 @app.post("/auth", status_code=201)
 async def login(id: int, password: str, server: Server, actions: Actions):
+    pwd_hash = password
+
     if id not in users:
         jwt = hash_user(id, password)  # TODO add proper hashing
-        user = User(id, jwt, server, actions)
+        user = User(id, pwd_hash, jwt, server, actions)
         users[id] = user
         return {'jwt': jwt}
+
+    elif users[id].pwd_hash == pwd_hash:
+        jwt = hash_user(id, password)
+        users[id].new_client(jwt, server, actions)
+        return {'jwt': jwt}
+
 
     raise HTTPException(status_code=404, detail='User not found')
 
@@ -107,7 +137,7 @@ async def increase(id: int, amount: int, jwt: str, request: Request):
     if not user.verified(ip, port, jwt):
         raise HTTPException(status_code=401, detail='Unauthorised')
 
-    result = user.increase(amount)
+    result = user.increase(amount, jwt)
     if not result:
         raise HTTPException(status_code=401, detail='Unauthorised')
 
@@ -127,7 +157,7 @@ async def decrease(id: int, amount: int, jwt: str, request: Request):
     if not user.verified(ip, port, jwt):
         raise HTTPException(status_code=401, detail='Unauthorised')
 
-    result = user.decrease(amount)
+    result = user.decrease(amount, jwt)
     if not result:
         raise HTTPException(status_code=401, detail='Unauthorised')
 
@@ -155,7 +185,7 @@ def hash_user(id: int, password: str) -> str:
     """
     This is a temporary measure for debugging - replace with secure hashing algorithm!
     """
-    return str(id) + password
+    return str(id) + password + str(time.time())
 
 
 if __name__ == '__main__':
