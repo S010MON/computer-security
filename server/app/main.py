@@ -183,7 +183,7 @@ def hash_user(id: int, password: str) -> str:
     """
     This is a temporary measure for debugging - replace with secure hashing algorithm!
     """
-    return str(id) + password + time.time()
+    return str(id) + password + str(time.time())
 
 
 if __name__ == '__main__':
