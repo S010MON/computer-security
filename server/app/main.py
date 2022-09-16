@@ -34,16 +34,17 @@ class User:
 
 
     def verified(self, ip: str, port: int, jwt: str) -> bool:
-        if self.server.ip != ip:
-            return False
-
-        # if self.server.port != port:
-        #     return False
 
         if jwt not in self.clients:
             return False
         
         client = self.clients[jwt]
+        
+        if client.server.ip != ip:
+            return False
+
+        # if self.server.port != port:
+        #     return False
 
         if client.jwt != jwt:
             return False
@@ -54,14 +55,14 @@ class User:
         return True
     
     def new_client(self, jwt: str, server: Server, actions: Actions):
-        self.clients = {jwt:Client(jwt, server, actions)}
-        pass
+        self.clients[jwt] = Client(jwt, server, actions)
 
     def increase(self, amount: int, jwt: str) -> bool:
-        if len(self.actions.steps) == 0:
-            return False
+        
+        client = self.clients[jwt]
 
-        client = self.client[jwt]
+        if len(client.actions.steps) == 0:
+            return False
 
         top_element = str(client.actions.steps.pop())
         action = top_element.split(" ")
@@ -76,10 +77,11 @@ class User:
         return True
 
     def decrease(self, amount: int, jwt: str):
-        if len(self.actions.steps) == 0:
-            return False
 
-        client = self.client[jwt]
+        client = self.clients[jwt]
+
+        if len(client.actions.steps) == 0:
+            return False
 
         top_element = str(client.actions.steps.pop())
         action = top_element.split(" ")
@@ -135,7 +137,7 @@ async def increase(id: int, amount: int, jwt: str, request: Request):
     if not user.verified(ip, port, jwt):
         raise HTTPException(status_code=401, detail='Unauthorised')
 
-    result = user.increase(amount)
+    result = user.increase(amount, jwt)
     if not result:
         raise HTTPException(status_code=401, detail='Unauthorised')
 
@@ -155,7 +157,7 @@ async def decrease(id: int, amount: int, jwt: str, request: Request):
     if not user.verified(ip, port, jwt):
         raise HTTPException(status_code=401, detail='Unauthorised')
 
-    result = user.decrease(amount)
+    result = user.decrease(amount, jwt)
     if not result:
         raise HTTPException(status_code=401, detail='Unauthorised')
 
