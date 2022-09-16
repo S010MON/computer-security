@@ -3,6 +3,7 @@ from pydantic import BaseModel
 import logging
 import uvicorn
 import time
+import hashlib
 
 
 class Server(BaseModel):
@@ -13,6 +14,7 @@ class Server(BaseModel):
 class Actions(BaseModel):
     delay: int
     steps: list
+
 
 class Client:
 
@@ -54,8 +56,10 @@ class User:
 
         return True
     
+    
     def new_client(self, jwt: str, server: Server, actions: Actions):
         self.clients[jwt] = Client(jwt, server, actions)
+
 
     def increase(self, amount: int, jwt: str) -> bool:
         
@@ -107,12 +111,14 @@ async def root():
 
 @app.post("/auth", status_code=201)
 async def login(id: int, password: str, server: Server, actions: Actions):
-    pwd_hash = password
+    
+    pwd_hash = hash_password(password)
 
     if id not in users:
         jwt = hash_user(id, password)  # TODO add proper hashing
         user = User(id, pwd_hash, jwt, server, actions)
         users[id] = user
+        print(jwt)
         return {'jwt': jwt}
 
     elif users[id].pwd_hash == pwd_hash:
@@ -182,10 +188,21 @@ def test_IP(request: Request):
 
 
 def hash_user(id: int, password: str) -> str:
-    """
-    This is a temporary measure for debugging - replace with secure hashing algorithm!
-    """
-    return str(id) + password + str(time.time())
+
+    encoding = (str(id) + password + str(time.time())).encode()
+
+    hashed = hashlib.sha3_512(encoding).hexdigest()
+
+    return hashed
+
+
+def hash_password(password: str):
+    
+    encoding = password.encode()
+
+    pwd_hash = hashlib.sha3_512(encoding).hexdigest()
+
+    return pwd_hash
 
 
 if __name__ == '__main__':
