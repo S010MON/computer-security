@@ -62,12 +62,13 @@ public class Request
 
             //Read response
             String response = conn.getResponseMessage();
+            return conn.getResponseCode();
         }
         catch(Exception e)
         {
             e.printStackTrace();
         }
-        return 0;
+        return CONNECTION_FAILURE;
     }
 
     public String formatAuthRequestJSON(String id, String password, int delay, String steps)
