@@ -9,7 +9,7 @@ There are 4 request URLs:
 
 
 ## /auth
-![](https://github.com/S010MON/computer-security/blob/main/screenshots/auth.jpg)
+![](https://github.com/S010MON/computer-security/blob/main/screenshots/auth_.jpg)
 Query:
 ```json
 {
