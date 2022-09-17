@@ -22,6 +22,8 @@ public class RequestsTest
         String steps = "[\"INCREASE 1\"" + ", " + "\"INCREASE 1\"]";
 
         Request request = new Request("http://127.0.0.1/");
+        request.setIp("\"" + "127.0.0.1" + "\"");
+        request.setPort(-1);
         String generatedQuery = request.formatAuthRequestBody(delay, steps);
 
         String desiredQuery = "{\"server\": {\"ip\": \"127.0.0.1\", \"port\": -1}, " +
@@ -38,6 +40,11 @@ public class RequestsTest
         String steps = "[\"INCREASE 1\"" + ", " + "\"INCREASE 1\"]";
 
         Request request = new Request("http://127.0.0.1/");
+
+        // Ensure IP and Port are set to tests capable of running accross all devices
+        request.setIp("\"" + "127.0.0.1" + "\"");
+        request.setPort(-1);
+
         String generatedBody = request.formatAuthRequestBody(delay, steps);
         int responseCode = request.postRequest(id, password, generatedBody);
         System.out.println(responseCode);

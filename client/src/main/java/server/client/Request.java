@@ -1,5 +1,7 @@
 package server.client;
 
+import lombok.Setter;
+
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -8,6 +10,8 @@ public class Request
 {
     private URL url;
     private HttpURLConnection conn;
+    @Setter private String ip;
+    @Setter private int port;
     private final int FAILURE_CODE = 404;
 
     public Request(String baseURL)
@@ -15,6 +19,8 @@ public class Request
         try
         {
             this.url = new URL(baseURL);
+            this.ip = "\"" + this.url.getHost() + "\"";
+            this.port = url.getPort();
 
             conn = (HttpURLConnection) this.url.openConnection();
         }
@@ -83,7 +89,7 @@ public class Request
 
     public String formatAuthRequestBody(int delay, String steps)
     {
-        String serverInfo = "{\"server\": {\"ip\": " + "\"" + this.url.getHost() + "\"" + ", \"port\": " + url.getPort() + "}, ";
+        String serverInfo = "{\"server\": {\"ip\": " + ip + ", \"port\": " + port + "}, ";
         String actionsInfo = "\"actions\": {\"delay\": " + delay +
                             ", \"steps\": " + steps + "}}";
         String request =serverInfo + actionsInfo;
