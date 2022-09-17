@@ -46,7 +46,7 @@ public class RequestsTest
         request.setPort(-1);
 
         String generatedBody = request.formatAuthRequestBody(delay, steps);
-        int responseCode = request.postRequest(id, password, generatedBody);
+        int responseCode = request.postAuthRequest(id, password, generatedBody);
         System.out.println(responseCode);
         assertEquals(responseCode, 201);
 

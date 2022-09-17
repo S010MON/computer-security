@@ -51,7 +51,7 @@ public class Request
         return FAILURE_CODE;
     }
 
-    public int postRequest(int id, String password, String jsonBodyString)
+    public int postAuthRequest(int id, String password, String jsonBodyString)
     {
         try
         {
