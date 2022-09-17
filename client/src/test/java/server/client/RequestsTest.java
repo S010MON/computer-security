@@ -3,6 +3,7 @@ package server.client;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 //Please note the Fast API must be active for tests to successfully run
 public class RequestsTest
@@ -49,6 +50,6 @@ public class RequestsTest
         int responseCode = request.postAuthRequest(id, password, generatedBody);
         System.out.println(responseCode);
         assertEquals(responseCode, 201);
-
+        assertTrue(!request.getJwt().equals(""));
     }
 }

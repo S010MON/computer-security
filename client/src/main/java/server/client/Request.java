@@ -1,7 +1,10 @@
 package server.client;
 
+import lombok.Getter;
 import lombok.Setter;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -12,7 +15,9 @@ public class Request
     private HttpURLConnection conn;
     @Setter private String ip;
     @Setter private int port;
+    @Setter @Getter private String jwt = "";
     private final int FAILURE_CODE = 404;
+
 
     public Request(String baseURL)
     {
@@ -56,7 +61,7 @@ public class Request
         try
         {
             this.url = new URL(this.url.toString() + "auth?id=" + id + "&password=" + password);
-            HttpURLConnection conn = (HttpURLConnection) this.url.openConnection();
+            conn = (HttpURLConnection) this.url.openConnection();
             conn.setRequestMethod("POST");
 
             //Set the request header content type
@@ -71,9 +76,9 @@ public class Request
             byte[] input = jsonBodyString.getBytes("utf-8");
             os.write(input, 0, input.length);
 
-            //Read response
-            String response = conn.getResponseMessage();
-            System.out.println(response);
+            //Read jwt if successful
+            if(conn.getResponseCode() == 201)
+                setJwt(getResponseBody());
 
             //Safety
             conn.disconnect();
@@ -95,6 +100,19 @@ public class Request
         String request =serverInfo + actionsInfo;
         System.out.println(request);
         return request;
+    }
+
+    private String getResponseBody() throws Exception
+    {
+        BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+        String line;
+        String response = "";
+        while((line = br.readLine()) != null)
+        {
+            response = response + line;
+        }
+        System.out.println(response);
+        return response;
     }
 }
 
