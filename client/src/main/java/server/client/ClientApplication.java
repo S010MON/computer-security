@@ -14,21 +14,16 @@ public class ClientApplication {
 	{
 		SpringApplication.run(ClientApplication.class, args);
 
-		try
-		{
-			URL url = new URL("http://127.0.0.1/");
-			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-			conn.setRequestMethod("GET");
-			conn.connect();
+		// Example GET request to the root
+		Request rootRequest = new Request("http://127.0.0.1/");
+		int rootGetStatus = rootRequest.getRequest();
+		System.out.println(rootGetStatus);
 
-			int responseCode = conn.getResponseCode();
-			System.out.println("Response Code: " + responseCode);
-			System.out.println("Response message: " + conn.getResponseMessage());
-		}
-		catch(IOException e)
-		{
-			e.printStackTrace();
-		}
+		// Example POST request to create Client
+		Request authRequest = new Request("http://127.0.0.1/");
+		String requestBody = rootRequest.formatAuthRequestBody(100, "[\"INCREASE 1\"" + ", " + "\"INCREASE 1\"]");
+		int authStatus = authRequest.postAuthRequest(1, "pass", requestBody);
+		System.out.println(authStatus);
 	}
 
 }
