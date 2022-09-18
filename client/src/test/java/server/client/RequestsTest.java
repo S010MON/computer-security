@@ -11,7 +11,7 @@ public class RequestsTest
     @Test
     void testGetRequest()
     {
-        Request request = new Request("http://127.0.0.1/");
+        Request request = new Request("http://127.0.0.1:8000/");
         int response = request.getRequest();
         assertEquals(response, 418);
     }
@@ -22,7 +22,7 @@ public class RequestsTest
         int delay = 100;
         String steps = "[\"INCREASE 1\"" + ", " + "\"INCREASE 1\"]";
 
-        Request request = new Request("http://127.0.0.1/");
+        Request request = new Request("http://127.0.0.1:8000/");
         request.setIp("\"" + "127.0.0.1" + "\"");
         request.setPort(-1);
         String generatedQuery = request.formatAuthRequestBody(delay, steps);
@@ -71,11 +71,11 @@ public class RequestsTest
     {
 
 
-        Request request = new Request("http://127.0.0.1/");
+        Request request = new Request("http://127.0.0.1:8000/");
 
-        // Ensure IP and Port are set to tests capable of running accross all devices
+        // Ensure IP and Port are set to tests capable of running across all devices
         request.setIp("\"" + "127.0.0.1" + "\"");
-        request.setPort(-1);
+        request.setPort(8000);
 
         return request;
     }

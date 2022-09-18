@@ -66,7 +66,7 @@ public class Request
     {
         try {
             URL url = new URL(baseUrl.toString() + "increase?id=" + id + "&amount=" + amount + "&jwt=" + jwt);
-            System.out.println(url.toString());
+            System.out.println(url);
             conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
 
@@ -76,12 +76,6 @@ public class Request
             conn.setRequestProperty("Accept", "application/json");
             // Enable write access to output stream
             conn.setDoOutput(true);
-
-            //Write post body (Empty)
-            String body = "";
-            OutputStream os = conn.getOutputStream();
-            byte[] input = body.getBytes("utf-8");
-            os.write(input, 0, input.length);
 
             if (conn.getResponseCode() == 200)
                 //TODO Update counter
@@ -105,6 +99,7 @@ public class Request
         try
         {
             URL url = new URL(baseUrl.toString() + "auth?id=" + id + "&password=" + password);
+            System.out.println(url);
             conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
 
