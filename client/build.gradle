@@ -11,7 +11,7 @@ version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '17'
 
 application {
-	mainClass = 'server.client.ClientApplication'
+	mainClass = 'server.client.HelloWorld'
 }
 
 javafx {
@@ -20,7 +20,7 @@ javafx {
 }
 
 ext {
-	junitVersion = '5.8.2'
+	junitVersion = '5.9.0'
 }
 
 configurations {
@@ -35,7 +35,7 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter'
-	compileOnly 'org.projectlombok:lombok'
+    compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
 	testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
