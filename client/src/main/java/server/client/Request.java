@@ -2,16 +2,21 @@ package server.client;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.boot.json.JsonParseException;
+import org.springframework.boot.json.JsonParser;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
+import java.util.Map;
 
+//TODO Return correct error status code instead of FAILURE_CODE
 public class Request
 {
-    private URL url;
+    private URL baseUrl;
     private HttpURLConnection conn;
     @Setter private String ip;
     @Setter private int port;
@@ -23,11 +28,11 @@ public class Request
     {
         try
         {
-            this.url = new URL(baseURL);
-            this.ip = "\"" + this.url.getHost() + "\"";
-            this.port = url.getPort();
+            baseUrl = new URL(baseURL);
+            ip = "\"" + baseUrl.getHost() + "\"";
+            port = baseUrl.getPort();
 
-            conn = (HttpURLConnection) this.url.openConnection();
+            conn = (HttpURLConnection) this.baseUrl.openConnection();
         }
         catch(Exception e)
         {
@@ -53,6 +58,45 @@ public class Request
         {
             e.printStackTrace();
         }
+
+        return FAILURE_CODE;
+    }
+
+    public int postIncreaseRequest(int id, int amount, String jwt)
+    {
+        try {
+            URL url = new URL(baseUrl.toString() + "increase?id=" + id + "&amount=" + amount + "&jwt=" + jwt);
+            System.out.println(url.toString());
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+
+            //Set the request header content type
+            conn.setRequestProperty("Content-Type", "application/json");
+            //Set the response header content type
+            conn.setRequestProperty("Accept", "application/json");
+            // Enable write access to output stream
+            conn.setDoOutput(true);
+
+            //Write post body (Empty)
+            String body = "";
+            OutputStream os = conn.getOutputStream();
+            byte[] input = body.getBytes("utf-8");
+            os.write(input, 0, input.length);
+
+            if (conn.getResponseCode() == 200)
+                //TODO Update counter
+                System.out.println(conn.getResponseMessage());
+
+            //Safety
+            conn.disconnect();
+
+            return conn.getResponseCode();
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+
         return FAILURE_CODE;
     }
 
@@ -60,8 +104,8 @@ public class Request
     {
         try
         {
-            this.url = new URL(this.url.toString() + "auth?id=" + id + "&password=" + password);
-            conn = (HttpURLConnection) this.url.openConnection();
+            URL url = new URL(baseUrl.toString() + "auth?id=" + id + "&password=" + password);
+            conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
 
             //Set the request header content type
@@ -78,7 +122,7 @@ public class Request
 
             //Read jwt if successful
             if(conn.getResponseCode() == 201)
-                setJwt(getResponseBody());
+                setJwt(jwtParser(getResponseBody()));
 
             //Safety
             conn.disconnect();
@@ -113,6 +157,14 @@ public class Request
         }
         System.out.println(response);
         return response;
+    }
+
+    private String jwtParser(String responseMessage)
+    {
+        int jsonIndexStartSeparator = responseMessage.indexOf(":\"") + 1;
+        int jsonIndexEndSeparator = responseMessage.indexOf("\"}") + 1;
+        String jwtFormatted = responseMessage.substring(jsonIndexStartSeparator, jsonIndexEndSeparator).replace("\"", "");
+        return jwtFormatted;
     }
 }
 
