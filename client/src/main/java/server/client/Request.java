@@ -65,7 +65,7 @@ public class Request
     public int postIncreaseRequest(int id, int amount, String jwt)
     {
         try {
-            URL url = new URL(baseUrl.toString() + "increase");
+            URL url = new URL(baseUrl.toString() + "increase?id=" + id + "&amount=" + amount + "&jwt=" + jwt);
             System.out.println(url);
             conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");

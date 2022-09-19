@@ -119,15 +119,14 @@ async def login(authRequest: AuthRequest):
     pwd_hash = hash_password(authRequest.password)
 
     if id not in users:
-        jwt = hash_user(id, authRequest.password)  # TODO add proper hashing
-        user = User(id, pwd_hash, jwt, authRequest.server, authRequest.actions)
-        users[id] = user
-        print(jwt)
+        jwt = hash_user(authRequest.id, authRequest.password)
+        user = User(authRequest.id, pwd_hash, jwt, authRequest.server, authRequest.actions)
+        users[authRequest.id] = user
         return {'jwt': jwt}
 
-    elif users[id].pwd_hash == pwd_hash:
-        jwt = hash_user(id, authRequest.password)
-        users[id].new_client(jwt, authRequest.server, authRequest.actions)
+    elif users[authRequest.id].pwd_hash == pwd_hash:
+        jwt = hash_user(authRequest.id, authRequest.password)
+        users[authRequest.id].new_client(jwt, authRequest.server, authRequest.actions)
         return {'jwt': jwt}
 
     raise HTTPException(status_code=404, detail='User not found')
@@ -139,7 +138,7 @@ async def increase(id: int, amount: int, jwt: str, request: Request):
     port = request.client.port
 
     if id not in users:
-        raise HTTPException(status_code=401, detail=f'Unauthorised')
+        raise HTTPException(status_code=404, detail='Not found')
 
     user = users[id]
 
@@ -158,8 +157,8 @@ async def decrease(id: int, amount: int, jwt: str, request: Request):
     ip = request.client.host
     port = request.client.port
 
-    if not (id in users):
-        raise HTTPException(status_code=401, detail='Unauthorised')
+    if id not in users:
+        raise HTTPException(status_code=404, detail='Not found')
 
     user = users[id]
 
