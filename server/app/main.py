@@ -115,7 +115,7 @@ async def root():
 
 @app.post("/auth", status_code=201)
 async def login(authRequest: AuthRequest):
-    
+
     pwd_hash = hash_password(authRequest.password)
 
     if id not in users:

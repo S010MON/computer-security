@@ -11,10 +11,10 @@ public class RequestsTest
 //    String url = "http://127.0.0.1:8000/";
 //    String ip = "127.0.0.1";
 
-    String url =  "http://0.0.0.0:80/";
+    String url =  "http://0.0.0.0:8000/";
     String ip = "0.0.0.0";
 
-    int port = 80;
+    int port = 8000;
 
     @Test
     void testGetRequest()
@@ -37,7 +37,7 @@ public class RequestsTest
         request.setPort(port);
         String generatedQuery = request.formatAuthRequestBody(id, password, delay, steps);
 
-        String desiredQuery = "{\"id\": 1, \"password\": pass, \"server\": {\"ip\": \"" + ip + "\", \"port\": "+ port +"}, " +
+        String desiredQuery = "{\"id\": 1, \"password\": \"pass\", \"server\": {\"ip\": \"" + ip + "\", \"port\": "+ port +"}, " +
                 "\"actions\": {\"delay\": 100, \"steps\": [\"INCREASE 1\", \"INCREASE 1\"]}}";
         assertEquals(desiredQuery, generatedQuery);
     }

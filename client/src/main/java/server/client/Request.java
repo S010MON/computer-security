@@ -65,7 +65,7 @@ public class Request
     public int postIncreaseRequest(int id, int amount, String jwt)
     {
         try {
-            URL url = new URL(baseUrl.toString() + "increase?id=" + id + "&amount=" + amount + "&jwt=" + jwt);
+            URL url = new URL(baseUrl.toString() + "increase");
             System.out.println(url);
             conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
@@ -98,7 +98,7 @@ public class Request
     {
         try
         {
-            URL url = new URL(baseUrl.toString() + "auth?id=" + id + "&password=" + password);
+            URL url = new URL(baseUrl.toString() + "auth");
             System.out.println(url);
             conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
@@ -133,7 +133,7 @@ public class Request
 
     public String formatAuthRequestBody(int id, String password, int delay, String steps)
     {
-        String clientInfo = "{\"id\": " + id + ", \"password\": " + password + ", ";
+        String clientInfo = "{\"id\": " + id + ", \"password\": " + "\"" + password + "\", ";
         String serverInfo = "\"server\": {\"ip\": " + ip + ", \"port\": " + port + "}, ";
         String actionsInfo = "\"actions\": {\"delay\": " + delay +
                             ", \"steps\": " + steps + "}}";
