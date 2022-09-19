@@ -27,15 +27,17 @@ public class RequestsTest
     @Test
     void testAuthQueryFormat()
     {
+        int id = 1;
+        String password = "pass";
         int delay = 100;
         String steps = "[\"INCREASE 1\"" + ", " + "\"INCREASE 1\"]";
 
         Request request = new Request(url);
         request.setIp("\"" + ip + "\"");
         request.setPort(port);
-        String generatedQuery = request.formatAuthRequestBody(delay, steps);
+        String generatedQuery = request.formatAuthRequestBody(id, password, delay, steps);
 
-        String desiredQuery = "{\"server\": {\"ip\": \"" + ip + "\", \"port\": "+ port +"}, " +
+        String desiredQuery = "{\"id\": 1, \"password\": pass, \"server\": {\"ip\": \"" + ip + "\", \"port\": "+ port +"}, " +
                 "\"actions\": {\"delay\": 100, \"steps\": [\"INCREASE 1\", \"INCREASE 1\"]}}";
         assertEquals(desiredQuery, generatedQuery);
     }
@@ -50,7 +52,7 @@ public class RequestsTest
 
         Request request = loginSetup();
 
-        String generatedBody = request.formatAuthRequestBody(delay, steps);
+        String generatedBody = request.formatAuthRequestBody(id, password, delay, steps);
         int responseCode = request.postAuthRequest(id, password, generatedBody);
         System.out.println(responseCode);
         assertEquals(201, responseCode);
@@ -67,7 +69,7 @@ public class RequestsTest
         String steps = "[\"INCREASE 1\"" + ", " + "\"INCREASE 1\"]";
         Request request = loginSetup();
 
-        String generatedBody = request.formatAuthRequestBody(delay, steps);
+        String generatedBody = request.formatAuthRequestBody(id, password, delay, steps);
         int responseCode = request.postAuthRequest(id, password, generatedBody);
         assertEquals(201, responseCode);
 

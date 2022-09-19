@@ -131,12 +131,13 @@ public class Request
         return FAILURE_CODE;
     }
 
-    public String formatAuthRequestBody(int delay, String steps)
+    public String formatAuthRequestBody(int id, String password, int delay, String steps)
     {
-        String serverInfo = "{\"server\": {\"ip\": " + ip + ", \"port\": " + port + "}, ";
+        String clientInfo = "{\"id\": " + id + ", \"password\": " + password + ", ";
+        String serverInfo = "\"server\": {\"ip\": " + ip + ", \"port\": " + port + "}, ";
         String actionsInfo = "\"actions\": {\"delay\": " + delay +
                             ", \"steps\": " + steps + "}}";
-        String request =serverInfo + actionsInfo;
+        String request =clientInfo + serverInfo + actionsInfo;
         System.out.println(request);
         return request;
     }
