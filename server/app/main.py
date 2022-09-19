@@ -16,6 +16,13 @@ class Actions(BaseModel):
     steps: list
 
 
+class AuthRequest(BaseModel):
+    id: int
+    password: str
+    server: Server
+    actions: Actions
+
+
 class Client:
 
     def __init__(self, jwt: str, server: Server, actions: Actions) -> None:
@@ -34,7 +41,6 @@ class User:
         self.counter = 0
         self.clients = {jwt:Client(jwt, server, actions)}
 
-
     def verified(self, ip: str, port: int, jwt: str) -> bool:
 
         if jwt not in self.clients:
@@ -42,8 +48,8 @@ class User:
         
         client = self.clients[jwt]
         
-        if client.server.ip != ip:
-            return False
+        # if client.server.ip != ip:
+        #     return False
 
         # if self.server.port != port:
         #     return False
@@ -56,10 +62,8 @@ class User:
 
         return True
     
-    
     def new_client(self, jwt: str, server: Server, actions: Actions):
         self.clients[jwt] = Client(jwt, server, actions)
-
 
     def increase(self, amount: int, jwt: str) -> bool:
         
@@ -110,22 +114,21 @@ async def root():
 
 
 @app.post("/auth", status_code=201)
-async def login(id: int, password: str, server: Server, actions: Actions):
+async def login(authRequest: AuthRequest):
     
-    pwd_hash = hash_password(password)
+    pwd_hash = hash_password(authRequest.password)
 
     if id not in users:
-        jwt = hash_user(id, password)  # TODO add proper hashing
-        user = User(id, pwd_hash, jwt, server, actions)
+        jwt = hash_user(id, authRequest.password)  # TODO add proper hashing
+        user = User(id, pwd_hash, jwt, authRequest.server, authRequest.actions)
         users[id] = user
         print(jwt)
         return {'jwt': jwt}
 
     elif users[id].pwd_hash == pwd_hash:
-        jwt = hash_user(id, password)
-        users[id].new_client(jwt, server, actions)
+        jwt = hash_user(id, authRequest.password)
+        users[id].new_client(jwt, authRequest.server, authRequest.actions)
         return {'jwt': jwt}
-
 
     raise HTTPException(status_code=404, detail='User not found')
 
@@ -190,18 +193,14 @@ def test_IP(request: Request):
 def hash_user(id: int, password: str) -> str:
 
     encoding = (str(id) + password + str(time.time())).encode()
-
     hashed = hashlib.sha3_512(encoding).hexdigest()
-
     return hashed
 
 
 def hash_password(password: str):
     
     encoding = password.encode()
-
     pwd_hash = hashlib.sha3_512(encoding).hexdigest()
-
     return pwd_hash
 
 
