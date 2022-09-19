@@ -14,7 +14,7 @@ Query:
 ```json
 {
   "id": 1
-  "password": "pass"
+  "password": "pass",
   "server": {
      "ip": "127.0.0.1",
      "port": 52660
