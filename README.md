@@ -13,7 +13,7 @@ There are 4 request URLs:
 Query:
 ```json
 {
-  "id": 1
+  "id": 1,
   "password": "pass",
   "server": {
      "ip": "127.0.0.1",
