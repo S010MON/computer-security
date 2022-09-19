@@ -1,8 +1,9 @@
-package server.client;
+package server.client.gui;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import server.client.networking.Client;
 
 public class MainFrame extends Application
 {
@@ -16,7 +17,7 @@ public class MainFrame extends Application
     {
         stage.setTitle("Secure Client");
         Client client = new Client();
-        stage.setScene(new Scene(client, 400, 500));
+        stage.setScene(new Scene(client, 450, 500));
         stage.show();
     }
 }

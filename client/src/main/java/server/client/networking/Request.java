@@ -1,17 +1,13 @@
-package server.client;
+package server.client.networking;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.boot.json.JsonParseException;
-import org.springframework.boot.json.JsonParser;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.List;
-import java.util.Map;
 
 //TODO Return correct error status code instead of FAILURE_CODE
 public class Request
@@ -62,38 +58,6 @@ public class Request
         return FAILURE_CODE;
     }
 
-    public int postIncreaseRequest(int id, int amount, String jwt)
-    {
-        try {
-            URL url = new URL(baseUrl.toString() + "increase?id=" + id + "&amount=" + amount + "&jwt=" + jwt);
-            System.out.println(url);
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("POST");
-
-            //Set the request header content type
-            conn.setRequestProperty("Content-Type", "application/json");
-            //Set the response header content type
-            conn.setRequestProperty("Accept", "application/json");
-            // Enable write access to output stream
-            conn.setDoOutput(true);
-
-            if (conn.getResponseCode() == 200)
-                //TODO Update counter
-                System.out.println(conn.getResponseMessage());
-
-            //Safety
-            conn.disconnect();
-
-            return conn.getResponseCode();
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-        }
-
-        return FAILURE_CODE;
-    }
-
     public int postAuthRequest(int id, String password, String jsonBodyString)
     {
         try
@@ -136,10 +100,42 @@ public class Request
         String clientInfo = "{\"id\": " + id + ", \"password\": " + "\"" + password + "\", ";
         String serverInfo = "\"server\": {\"ip\": " + ip + ", \"port\": " + port + "}, ";
         String actionsInfo = "\"actions\": {\"delay\": " + delay +
-                            ", \"steps\": " + steps + "}}";
+                ", \"steps\": " + steps + "}}";
         String request =clientInfo + serverInfo + actionsInfo;
         System.out.println(request);
         return request;
+    }
+
+    public int postIncreaseRequest(int id, int amount, String jwt)
+    {
+        try {
+            URL url = new URL(baseUrl.toString() + "increase?id=" + id + "&amount=" + amount + "&jwt=" + jwt);
+            System.out.println(url);
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+
+            //Set the request header content type
+            conn.setRequestProperty("Content-Type", "application/json");
+            //Set the response header content type
+            conn.setRequestProperty("Accept", "application/json");
+            // Enable write access to output stream
+            conn.setDoOutput(true);
+
+            if (conn.getResponseCode() == 200)
+                //TODO Update counter
+                System.out.println(conn.getResponseMessage());
+
+            //Safety
+            conn.disconnect();
+
+            return conn.getResponseCode();
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+
+        return FAILURE_CODE;
     }
 
     private String getResponseBody() throws Exception
