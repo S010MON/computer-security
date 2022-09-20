@@ -23,6 +23,10 @@ class AuthRequest(BaseModel):
     actions: Actions
 
 
+class ChangeRequest(BaseModel):
+    jwt: str
+    amount: int
+
 class Client:
 
     def __init__(self, jwt: str, server: Server, actions: Actions) -> None:
@@ -65,9 +69,9 @@ class User:
     def new_client(self, jwt: str, server: Server, actions: Actions):
         self.clients[jwt] = Client(jwt, server, actions)
 
-    def increase(self, amount: int, jwt: str) -> bool:
+    def increase(self, request: ChangeRequest) -> bool:
         
-        client = self.clients[jwt]
+        client = self.clients[request.jwt]
 
         if len(client.actions.steps) == 0:
             return False
@@ -75,18 +79,18 @@ class User:
         top_element = str(client.actions.steps.pop())
         action = top_element.split(" ")
 
-        if action[0] != "INCREASE" or int(action[1]) != amount:
+        if action[0] != "INCREASE" or int(action[1]) != request.amount:
             client.actions.steps.append(top_element)
             return False
 
-        self.counter += amount
+        self.counter += request.amount
         logging.basicConfig(filename='log')
-        logging.info(f"{self.id} - increased by: {amount} to {self.counter}")
+        logging.info(f"{self.id} - increased by: {request.amount} to {self.counter}")
         return True
 
-    def decrease(self, amount: int, jwt: str):
+    def decrease(self, request: ChangeRequest):
 
-        client = self.clients[jwt]
+        client = self.clients[request.jwt]
 
         if len(client.actions.steps) == 0:
             return False
@@ -94,13 +98,13 @@ class User:
         top_element = str(client.actions.steps.pop())
         action = top_element.split(" ")
 
-        if action[0] != "DECREASE" or int(action[1]) != amount:
+        if action[0] != "DECREASE" or int(action[1]) != request.amount:
             client.actions.steps.append(top_element)
             return False
 
-        self.counter -= amount
+        self.counter -= request.amount
         logging.basicConfig(filename='log')
-        logging.info(f"User{self.id} - decreased by: {amount} to {self.counter}")
+        logging.info(f"User{self.id} - decreased by: {request.amount} to {self.counter}")
         return True
 
 
