@@ -11,7 +11,7 @@ public class RequestsTest
 //    String url = "http://127.0.0.1:8000/";
 //    String ip = "127.0.0.1";
 
-    String url =  "http://0.0.0.0:8000/";
+    String url =  "http://0.0.0.0:80/";
     String ip = "0.0.0.0";
 
     int port = 8000;
@@ -53,7 +53,7 @@ public class RequestsTest
         Request request = loginSetup();
 
         String generatedBody = request.formatAuthRequestBody(id, password, delay, steps);
-        int responseCode = request.postAuthRequest(id, password, generatedBody);
+        int responseCode = request.postAuthRequest(generatedBody);
         System.out.println(responseCode);
         assertEquals(201, responseCode);
         assertTrue(!request.getJwt().equals(""));
@@ -70,7 +70,7 @@ public class RequestsTest
         Request request = loginSetup();
 
         String generatedBody = request.formatAuthRequestBody(id, password, delay, steps);
-        int responseCode = request.postAuthRequest(id, password, generatedBody);
+        int responseCode = request.postAuthRequest(generatedBody);
         assertEquals(201, responseCode);
 
         int increaseResponseCode = request.postIncreaseRequest(id, 1, request.getJwt());

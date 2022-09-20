@@ -94,7 +94,7 @@ public class Request
         return FAILURE_CODE;
     }
 
-    public int postAuthRequest(int id, String password, String jsonBodyString)
+    public int postAuthRequest(String jsonBodyString)
     {
         try
         {
@@ -133,13 +133,12 @@ public class Request
 
     public String formatAuthRequestBody(int id, String password, int delay, String steps)
     {
-        String clientInfo = "{\"id\": " + id + ", \"password\": " + "\"" + password + "\", ";
-        String serverInfo = "\"server\": {\"ip\": " + ip + ", \"port\": " + port + "}, ";
-        String actionsInfo = "\"actions\": {\"delay\": " + delay +
-                            ", \"steps\": " + steps + "}}";
-        String request =clientInfo + serverInfo + actionsInfo;
-        System.out.println(request);
-        return request;
+        return RequestBody.formatAuthRequest(id,
+                password,
+                delay,
+                steps,
+                port,
+                ip);
     }
 
     private String getResponseBody() throws Exception
