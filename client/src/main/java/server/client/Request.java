@@ -87,7 +87,7 @@ public class Request
         conn.setDoOutput(true);
 
         if (conn.getResponseCode() == 200)
-            getResponseBody();
+            setCounter(counterParser(getResponseBody()));
 
         //Safety
         conn.disconnect();
@@ -114,7 +114,6 @@ public class Request
         {
             response = response + line;
         }
-        System.out.println(response);
         return response;
     }
 
@@ -129,9 +128,9 @@ public class Request
     private int counterParser(String responseMessage)
     {
         int jsonIndexStartSeparator = responseMessage.indexOf(":") + 1;
-        int jsonIndexEndSeperator = responseMessage.indexOf("}");
-        String counterValue = responseMessage.substring(jsonIndexStartSeparator, jsonIndexEndSeperator);
-        return Integer.getInteger(counterValue);
+        int jsonIndexEndSeparator = responseMessage.indexOf("}");
+        String counterValue = responseMessage.substring(jsonIndexStartSeparator, jsonIndexEndSeparator);
+        return Integer.parseInt(counterValue);
     }
 }
 

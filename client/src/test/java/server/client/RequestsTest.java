@@ -71,7 +71,6 @@ public class RequestsTest
             Request request = loginSetup();
 
             int responseCode = request.postAuthRequest(id, password, delay, steps);
-            System.out.println(responseCode);
             assertEquals(201, responseCode);
             assertTrue(!request.getJwt().equals(""));
         }
@@ -84,7 +83,7 @@ public class RequestsTest
     @Test
     void testIncreasePostRequest()
     {
-        int id = 1;
+        int id = 2;
         String password = "pass";
         int delay = 100;
         String steps = "[\"INCREASE 1\"" + ", " + "\"INCREASE 1\"]";
@@ -98,6 +97,8 @@ public class RequestsTest
 
             int increaseResponseCode = request.postIncreaseRequest(id, 1, request.getJwt());
             assertEquals(200, increaseResponseCode);
+
+            assertEquals(1, request.getCounter());
         }
         catch(Exception e)
         {
