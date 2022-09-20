@@ -1,7 +1,9 @@
 package server.client;
 
-
 import org.junit.jupiter.api.Test;
+import server.client.gui.Action;
+import server.client.gui.Direction;
+
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

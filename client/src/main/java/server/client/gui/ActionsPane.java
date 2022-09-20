@@ -1,4 +1,4 @@
-package server.client;
+package server.client.gui;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -10,14 +10,10 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-
 
 public class ActionsPane extends VBox
 {
-    private LinkedList<Action> actions = new LinkedList<>();
-
     public ActionsPane()
     {
         BackgroundFill bf = new BackgroundFill(Color.GRAY, CornerRadii.EMPTY , Insets.EMPTY);
@@ -26,10 +22,6 @@ public class ActionsPane extends VBox
         setSpacing(5);
         setMaxWidth(140d);
         setMinWidth(140d);
-
-        addIncrease(10);
-        addDecrease(10);
-        getActions().forEach(action -> System.out.println(action.toString()));
 
         setVisible(true);
     }
@@ -44,6 +36,22 @@ public class ActionsPane extends VBox
         getChildren().add(new Action(Direction.DECREASE, amount));
     }
 
+    public String getSteps()
+    {
+        List<Action> actions = getActions();
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for(int i = 0; i < actions.size() -1; i++)
+        {
+            sb.append(actions.get(i).toString());
+            if(i != (actions.size()-2))
+                sb.append(", ");
+        }
+        sb.append("]");
+        return sb.toString();
+    }
+
     public List<Action> getActions()
     {
         ArrayList<Action> actions = new ArrayList<>();
@@ -53,5 +61,10 @@ public class ActionsPane extends VBox
                 actions.add((Action) o);
         }
         return actions;
+    }
+
+    public Action popAction()
+    {
+        return (Action) getChildren().remove(0);
     }
 }

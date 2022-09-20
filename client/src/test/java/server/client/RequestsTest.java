@@ -1,8 +1,10 @@
 package server.client;
 
 import org.junit.jupiter.api.Test;
+import server.client.networking.Request;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 //Please note the Fast API must be active for tests to successfully run
@@ -12,9 +14,8 @@ public class RequestsTest
     String url = "http://127.0.0.1:8000/";
     String ip = "127.0.0.1";
 
-    // DOCKER
-//    String url =  "http://0.0.0.0:80/";
-//    String ip = "0.0.0.0";
+    String url =  "http://0.0.0.0:8000/";
+    String ip = "0.0.0.0";
 
     int port = 8000;
 
