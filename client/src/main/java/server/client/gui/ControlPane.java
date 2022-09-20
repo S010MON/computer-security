@@ -58,6 +58,10 @@ public class ControlPane extends GridPane
         add(counterLbl, 0, 8);
         add(counterAmount, 1, 8);
 
+        Button popBtn = new Button("Pop!");
+        popBtn.setOnAction(event -> actionsPane.popAction());
+        add(popBtn, 1,9);
+
         setVisible(true);
     }
 

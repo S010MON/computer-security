@@ -193,7 +193,7 @@ async def logout(id: int, jwt: str):
 
 @app.post("/ip", status_code=200)
 def test_IP(request: Request):
-    return {'ip address': request.client.host, 'port': request.client.port, "users": users}
+    return {'ip address': request.client.host, 'port': request.client.port}
 
 
 def hash_user(id: int, password: str) -> str:

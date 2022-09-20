@@ -2,10 +2,10 @@ package server.client;
 
 import org.junit.jupiter.api.Test;
 
-import server.client.networking.Request;
+import server.client.gui.Direction;
+import server.client.networking.Session;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 //Please note the Fast API must be active for tests to successfully run
 public class RequestsTest
@@ -25,7 +25,7 @@ public class RequestsTest
     {
         try
         {
-            Request request = new Request(url);
+            Session request = new Session(url);
             int response = request.getRequest();
             assertEquals(418, response);
         }
@@ -45,7 +45,7 @@ public class RequestsTest
 
         try
         {
-            Request request = new Request(url);
+            Session request = new Session(url);
             request.setIp("\"" + ip + "\"");
             request.setPort(port);
             String generatedQuery = request.formatAuthRequestBody(id, password, delay, steps);
@@ -70,11 +70,10 @@ public class RequestsTest
 
         try
         {
-            Request request = loginSetup();
+            Session request = loginSetup();
 
             int responseCode = request.postAuthRequest(id, password, delay, steps);
             assertEquals(201, responseCode);
-            assertTrue(!request.getJwt().equals(""));
         }
         catch(Exception e)
         {
@@ -93,17 +92,17 @@ public class RequestsTest
         try
         {
             //Login
-            Request request = loginSetup();
+            Session request = loginSetup();
             int responseCode = request.postAuthRequest(id, password, delay, steps);
             assertEquals(201, responseCode);
 
             //Increase
-            int increaseResponseCode = request.postChangeRequest("DECREASE", id,1, request.getJwt());
+            int increaseResponseCode = request.postChangeRequest(Direction.DECREASE, id,1);
             assertEquals(200, increaseResponseCode);
             assertEquals(-1, request.getCounter());
 
             //Decrease
-            int decreaseResponseCode = request.postChangeRequest("DECREASE", id, 1, request.getJwt());
+            int decreaseResponseCode = request.postChangeRequest(Direction.DECREASE, id, 1);
             assertEquals(200, decreaseResponseCode);
             assertEquals(-2, request.getCounter());
         }
@@ -124,17 +123,17 @@ public class RequestsTest
         try
         {
             //Login
-            Request request = loginSetup();
+            Session request = loginSetup();
             int responseCode = request.postAuthRequest(id, password, delay, steps);
             assertEquals(201, responseCode);
 
             //Increase
-            int increaseResponseCode1 = request.postChangeRequest("INCREASE", id,1, request.getJwt());
+            int increaseResponseCode1 = request.postChangeRequest(Direction.INCREASE, id,1);
             assertEquals(200, increaseResponseCode1);
             assertEquals(1, request.getCounter());
 
             //Increase
-            int increaseResponseCode2 = request.postChangeRequest("INCREASE", id, 1, request.getJwt());
+            int increaseResponseCode2 = request.postChangeRequest(Direction.INCREASE, id, 1);
             assertEquals(200, increaseResponseCode2);
             assertEquals(2, request.getCounter());
         }
@@ -146,9 +145,9 @@ public class RequestsTest
 
 
 
-    public Request loginSetup() throws Exception
+    public Session loginSetup() throws Exception
     {
-        Request request = new Request(url);
+        Session request = new Session(url);
 
         // Ensure IP and Port are set to tests capable of running across all devices
         request.setIp("\"" + ip + "\"");

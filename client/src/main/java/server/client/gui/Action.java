@@ -8,8 +8,8 @@ import javafx.scene.paint.Color;
 
 public class Action extends Label
 {
-    Direction direction;
-    int amount;
+    public Direction direction;
+    public int amount;
 
     public Action(Direction direction, int amount)
     {

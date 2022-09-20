@@ -3,6 +3,7 @@ package server.client.networking;
 import lombok.Getter;
 import lombok.Setter;
 import server.client.RequestBody;
+import server.client.gui.Direction;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -10,19 +11,29 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class Request
+public class Session
 {
     private URL baseUrl;
+    private String jwt = "";
     private HttpURLConnection conn;
+    @Getter private int id;
     @Setter private String ip;
     @Setter private int port;
-    @Setter @Getter private String jwt = "";
     @Setter @Getter private int counter;
 
 
-    public Request(String baseURL) throws Exception
+    public Session() throws Exception
     {
-        baseUrl = new URL(baseURL);
+        baseUrl = new URL("http://127.0.0.1/");
+        ip = "\"" + baseUrl.getHost() + "\"";
+        port = baseUrl.getPort();
+
+        conn = (HttpURLConnection) this.baseUrl.openConnection();
+    }
+
+    public Session(String url) throws Exception
+    {
+        baseUrl = new URL(url);
         ip = "\"" + baseUrl.getHost() + "\"";
         port = baseUrl.getPort();
 
@@ -45,6 +56,7 @@ public class Request
     public int postAuthRequest(int id, String password, int delay, String steps) throws Exception
     {
         URL url = new URL(baseUrl.toString() + "auth");
+        this.id = id;
         System.out.println(url);
         conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("POST");
@@ -64,7 +76,7 @@ public class Request
 
         //Read jwt if successful
         if(conn.getResponseCode() == 201)
-            setJwt(jwtParser(getResponseBody()));
+            jwt = jwtParser(getResponseBody());
 
         //Safety
         conn.disconnect();
@@ -72,9 +84,9 @@ public class Request
         return conn.getResponseCode();
     }
 
-    public int postChangeRequest(String change, int id,  int amount, String jwt) throws Exception
+    public int postChangeRequest(Direction direction, int id, int amount) throws Exception
     {
-        String path = changeRequestPath(change);
+        String path = changeRequestPath(direction.toString());
 
         URL url = new URL(baseUrl.toString() + path);
         System.out.println(url);

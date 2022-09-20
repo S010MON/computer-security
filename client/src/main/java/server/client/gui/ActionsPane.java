@@ -63,8 +63,14 @@ public class ActionsPane extends VBox
         return actions;
     }
 
+    public boolean hasActions()
+    {
+        return getChildren().size() != 0;
+    }
+
     public Action popAction()
     {
-        return (Action) getChildren().remove(0);
+        Action a = (Action) getChildren().remove(0);
+        return a;
     }
 }
