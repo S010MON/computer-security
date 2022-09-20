@@ -2,16 +2,12 @@ package server.client;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.boot.json.JsonParseException;
-import org.springframework.boot.json.JsonParser;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.List;
-import java.util.Map;
 
 //TODO Return correct error status code instead of FAILURE_CODE
 public class Request
@@ -21,7 +17,7 @@ public class Request
     @Setter private String ip;
     @Setter private int port;
     @Setter @Getter private String jwt = "";
-    private final int FAILURE_CODE = 404;
+    @Setter @Getter private int counter;
 
 
     public Request(String baseURL) throws Exception
@@ -91,8 +87,7 @@ public class Request
         conn.setDoOutput(true);
 
         if (conn.getResponseCode() == 200)
-            //TODO Update counter
-            System.out.println(conn.getResponseMessage());
+            getResponseBody();
 
         //Safety
         conn.disconnect();
@@ -129,6 +124,14 @@ public class Request
         int jsonIndexEndSeparator = responseMessage.indexOf("\"}") + 1;
         String jwtFormatted = responseMessage.substring(jsonIndexStartSeparator, jsonIndexEndSeparator).replace("\"", "");
         return jwtFormatted;
+    }
+
+    private int counterParser(String responseMessage)
+    {
+        int jsonIndexStartSeparator = responseMessage.indexOf(":") + 1;
+        int jsonIndexEndSeperator = responseMessage.indexOf("}");
+        String counterValue = responseMessage.substring(jsonIndexStartSeparator, jsonIndexEndSeperator);
+        return Integer.getInteger(counterValue);
     }
 }
 

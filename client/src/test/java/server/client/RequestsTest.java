@@ -8,9 +8,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 //Please note the Fast API must be active for tests to successfully run
 public class RequestsTest
 {
+    // PYCHARM
 //    String url = "http://127.0.0.1:8000/";
 //    String ip = "127.0.0.1";
 
+    // DOCKER
     String url =  "http://0.0.0.0:80/";
     String ip = "0.0.0.0";
 
@@ -82,7 +84,6 @@ public class RequestsTest
     @Test
     void testIncreasePostRequest()
     {
-        //Login to the server
         int id = 1;
         String password = "pass";
         int delay = 100;
