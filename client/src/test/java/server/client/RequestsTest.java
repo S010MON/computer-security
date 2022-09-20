@@ -96,15 +96,14 @@ public class RequestsTest
             assertEquals(201, responseCode);
 
             //Increase
-            int increaseResponseCode = request.postChangeRequest("INCREASE", id, 1, request.getJwt());
+            int increaseResponseCode = request.postChangeRequest("INCREASE",1, request.getJwt());
             assertEquals(200, increaseResponseCode);
             assertEquals(1, request.getCounter());
 
             //Decrease
-            int decreaseResponseCode = request.postChangeRequest("DECREASE", id, 1, request.getJwt());
+            int decreaseResponseCode = request.postChangeRequest("DECREASE", 1, request.getJwt());
             assertEquals(200, decreaseResponseCode);
             assertEquals(0, request.getCounter());
-
         }
         catch(Exception e)
         {
