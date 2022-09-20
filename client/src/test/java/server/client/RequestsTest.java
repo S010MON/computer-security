@@ -9,12 +9,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class RequestsTest
 {
     // PYCHARM
-//    String url = "http://127.0.0.1:8000/";
-//    String ip = "127.0.0.1";
+    String url = "http://127.0.0.1:8000/";
+    String ip = "127.0.0.1";
 
     // DOCKER
-    String url =  "http://0.0.0.0:80/";
-    String ip = "0.0.0.0";
+//    String url =  "http://0.0.0.0:80/";
+//    String ip = "0.0.0.0";
 
     int port = 8000;
 
@@ -81,12 +81,12 @@ public class RequestsTest
     }
 
     @Test
-    void testChangePostRequest()
+    void post_decrease()
     {
         int id = 2;
         String password = "pass";
         int delay = 100;
-        String steps = "[\"INCREASE 1\"" + ", " + "\"DECREASE 1\"]";
+        String steps = "[\"DECREASE 1\"" + ", " + "\"DECREASE 1\"]";
 
         try
         {
@@ -96,20 +96,53 @@ public class RequestsTest
             assertEquals(201, responseCode);
 
             //Increase
-            int increaseResponseCode = request.postChangeRequest("INCREASE",1, request.getJwt());
+            int increaseResponseCode = request.postChangeRequest("DECREASE", id,1, request.getJwt());
             assertEquals(200, increaseResponseCode);
-            assertEquals(1, request.getCounter());
+            assertEquals(-1, request.getCounter());
 
             //Decrease
-            int decreaseResponseCode = request.postChangeRequest("DECREASE", 1, request.getJwt());
+            int decreaseResponseCode = request.postChangeRequest("DECREASE", id, 1, request.getJwt());
             assertEquals(200, decreaseResponseCode);
-            assertEquals(0, request.getCounter());
+            assertEquals(-2, request.getCounter());
         }
         catch(Exception e)
         {
             e.printStackTrace();
         }
     }
+
+    @Test
+    void post_increase()
+    {
+        int id = 3;
+        String password = "pass";
+        int delay = 100;
+        String steps = "[\"INCREASE 1\"" + ", " + "\"INCREASE 1\"]";
+
+        try
+        {
+            //Login
+            Request request = loginSetup();
+            int responseCode = request.postAuthRequest(id, password, delay, steps);
+            assertEquals(201, responseCode);
+
+            //Increase
+            int increaseResponseCode1 = request.postChangeRequest("INCREASE", id,1, request.getJwt());
+            assertEquals(200, increaseResponseCode1);
+            assertEquals(1, request.getCounter());
+
+            //Increase
+            int increaseResponseCode2 = request.postChangeRequest("INCREASE", id, 1, request.getJwt());
+            assertEquals(200, increaseResponseCode2);
+            assertEquals(2, request.getCounter());
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+
 
     public Request loginSetup() throws Exception
     {

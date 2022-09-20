@@ -24,8 +24,10 @@ class AuthRequest(BaseModel):
 
 
 class ChangeRequest(BaseModel):
+    id: int
     jwt: str
     amount: int
+
 
 class Client:
 
@@ -69,9 +71,9 @@ class User:
     def new_client(self, jwt: str, server: Server, actions: Actions):
         self.clients[jwt] = Client(jwt, server, actions)
 
-    def increase(self, request: ChangeRequest) -> bool:
+    def increase(self, amount: int, jwt: str) -> bool:
         
-        client = self.clients[request.jwt]
+        client = self.clients[jwt]
 
         if len(client.actions.steps) == 0:
             return False
@@ -79,18 +81,18 @@ class User:
         top_element = str(client.actions.steps.pop())
         action = top_element.split(" ")
 
-        if action[0] != "INCREASE" or int(action[1]) != request.amount:
+        if action[0] != "INCREASE" or int(action[1]) != amount:
             client.actions.steps.append(top_element)
             return False
 
-        self.counter += request.amount
+        self.counter += amount
         logging.basicConfig(filename='log')
-        logging.info(f"{self.id} - increased by: {request.amount} to {self.counter}")
+        logging.info(f"{self.id} - increased by: {amount} to {self.counter}")
         return True
 
-    def decrease(self, request: ChangeRequest):
+    def decrease(self, amount: int, jwt: str):
 
-        client = self.clients[request.jwt]
+        client = self.clients[jwt]
 
         if len(client.actions.steps) == 0:
             return False
@@ -98,13 +100,13 @@ class User:
         top_element = str(client.actions.steps.pop())
         action = top_element.split(" ")
 
-        if action[0] != "DECREASE" or int(action[1]) != request.amount:
+        if action[0] != "DECREASE" or int(action[1]) != amount:
             client.actions.steps.append(top_element)
             return False
 
-        self.counter -= request.amount
+        self.counter -= amount
         logging.basicConfig(filename='log')
-        logging.info(f"User{self.id} - decreased by: {request.amount} to {self.counter}")
+        logging.info(f"User{self.id} - decreased by: {amount} to {self.counter}")
         return True
 
 
@@ -137,19 +139,20 @@ async def login(authRequest: AuthRequest):
 
 
 @app.post("/increase", status_code=200)
-async def increase(id: int, amount: int, jwt: str, request: Request):
+async def increase(changeRequest: ChangeRequest, request: Request):
+
     ip = request.client.host
     port = request.client.port
 
-    if id not in users:
+    if changeRequest.id not in users:
         raise HTTPException(status_code=404, detail='Not found')
 
-    user = users[id]
+    user = users[changeRequest.id]
 
-    if not user.verified(ip, port, jwt):
+    if not user.verified(ip, port, changeRequest.jwt):
         raise HTTPException(status_code=401, detail='Unauthorised')
 
-    result = user.increase(amount, jwt)
+    result = user.increase(changeRequest.amount, changeRequest.jwt)
     if not result:
         raise HTTPException(status_code=401, detail='Unauthorised')
 
@@ -157,19 +160,19 @@ async def increase(id: int, amount: int, jwt: str, request: Request):
 
 
 @app.post("/decrease", status_code=200)
-async def decrease(id: int, amount: int, jwt: str, request: Request):
+async def decrease(changeRequest: ChangeRequest, request: Request):
     ip = request.client.host
     port = request.client.port
 
-    if id not in users:
+    if changeRequest.id not in users:
         raise HTTPException(status_code=404, detail='Not found')
 
-    user = users[id]
+    user = users[changeRequest.id]
 
-    if not user.verified(ip, port, jwt):
+    if not user.verified(ip, port, changeRequest.jwt):
         raise HTTPException(status_code=401, detail='Unauthorised')
 
-    result = user.decrease(amount, jwt)
+    result = user.decrease(changeRequest.amount, changeRequest.jwt)
     if not result:
         raise HTTPException(status_code=401, detail='Unauthorised')
 

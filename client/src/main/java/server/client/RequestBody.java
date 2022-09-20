@@ -11,10 +11,12 @@ public class RequestBody
         return clientInfo + serverInfo + actionsInfo;
     }
 
-    public static String formatChangeRequest(String jwt, int amount)
+    public static String formatChangeRequest(int id, String jwt, int amount)
     {
-        String jwtInfo = "\"jwt\": " + jwt + ", ";
-        String amountInfo = "\"amount\":: " + amount + "}";
-        return jwtInfo + amountInfo;
+        String idInfo = "{\"id\": " + id + ", ";
+        String jwtInfo = "\"jwt\": \"" + jwt + "\", ";
+        String amountInfo = "\"amount\": " + amount + "}";
+        System.out.println(idInfo + jwtInfo + amountInfo);
+        return idInfo + jwtInfo + amountInfo;
     }
 }

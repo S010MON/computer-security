@@ -71,7 +71,7 @@ public class Request
         return conn.getResponseCode();
     }
 
-    public int postChangeRequest(String change, int amount, String jwt) throws Exception
+    public int postChangeRequest(String change, int id,  int amount, String jwt) throws Exception
     {
         String path = changeRequestPath(change);
 
@@ -88,7 +88,7 @@ public class Request
         conn.setDoOutput(true);
 
         //Write JSON string to output stream as bytes
-        String jsonBodyString = RequestBody.formatChangeRequest(jwt,  amount);
+        String jsonBodyString = RequestBody.formatChangeRequest(id, jwt,  amount);
         OutputStream os = conn.getOutputStream();
         byte[] input = jsonBodyString.getBytes("utf-8");
         os.write(input, 0, input.length);
