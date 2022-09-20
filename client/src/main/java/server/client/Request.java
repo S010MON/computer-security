@@ -24,111 +24,80 @@ public class Request
     private final int FAILURE_CODE = 404;
 
 
-    public Request(String baseURL)
+    public Request(String baseURL) throws Exception
     {
-        try
-        {
-            baseUrl = new URL(baseURL);
-            ip = "\"" + baseUrl.getHost() + "\"";
-            port = baseUrl.getPort();
+        baseUrl = new URL(baseURL);
+        ip = "\"" + baseUrl.getHost() + "\"";
+        port = baseUrl.getPort();
 
-            conn = (HttpURLConnection) this.baseUrl.openConnection();
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-        }
+        conn = (HttpURLConnection) this.baseUrl.openConnection();
     }
 
+    public int getRequest() throws Exception
+    {
+        conn.setRequestMethod("GET");
+        conn.connect();
 
-    public int getRequest() {
-        try
-        {
-            conn.setRequestMethod("GET");
-            conn.connect();
+        System.out.println(conn.getResponseMessage());
 
+        //Safety
+        conn.disconnect();
+
+        return conn.getResponseCode();
+    }
+
+    public int postAuthRequest(int id, String password, int delay, String steps) throws Exception
+    {
+        URL url = new URL(baseUrl.toString() + "auth");
+        System.out.println(url);
+        conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("POST");
+
+        //Set the request header content type
+        conn.setRequestProperty("Content-Type", "application/json");
+        //Set the response header content type
+        conn.setRequestProperty("Accept", "application/json");
+        // Enable write access to output stream
+        conn.setDoOutput(true);
+
+        //Write JSON string to output stream as bytes
+        String jsonBodyString = formatAuthRequestBody(id, password, delay, steps);
+        OutputStream os = conn.getOutputStream();
+        byte[] input = jsonBodyString.getBytes("utf-8");
+        os.write(input, 0, input.length);
+
+        //Read jwt if successful
+        if(conn.getResponseCode() == 201)
+            setJwt(jwtParser(getResponseBody()));
+
+        //Safety
+        conn.disconnect();
+
+        return conn.getResponseCode();
+    }
+
+    public int postIncreaseRequest(int id, int amount, String jwt) throws Exception
+    {
+        URL url = new URL(baseUrl.toString() + "increase?id=" + id + "&amount=" + amount + "&jwt=" + jwt);
+        System.out.println(url);
+        conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("POST");
+
+        //Set the request header content type
+        conn.setRequestProperty("Content-Type", "application/json");
+        //Set the response header content type
+        conn.setRequestProperty("Accept", "application/json");
+        // Enable write access to output stream
+        conn.setDoOutput(true);
+
+        if (conn.getResponseCode() == 200)
+            //TODO Update counter
             System.out.println(conn.getResponseMessage());
 
-            //Safety
-            conn.disconnect();
+        //Safety
+        conn.disconnect();
 
-            return conn.getResponseCode();
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-
-        return FAILURE_CODE;
-    }
-
-    public int postIncreaseRequest(int id, int amount, String jwt)
-    {
-        try {
-            URL url = new URL(baseUrl.toString() + "increase?id=" + id + "&amount=" + amount + "&jwt=" + jwt);
-            System.out.println(url);
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("POST");
-
-            //Set the request header content type
-            conn.setRequestProperty("Content-Type", "application/json");
-            //Set the response header content type
-            conn.setRequestProperty("Accept", "application/json");
-            // Enable write access to output stream
-            conn.setDoOutput(true);
-
-            if (conn.getResponseCode() == 200)
-                //TODO Update counter
-                System.out.println(conn.getResponseMessage());
-
-            //Safety
-            conn.disconnect();
-
-            return conn.getResponseCode();
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-        }
-
-        return FAILURE_CODE;
-    }
-
-    public int postAuthRequest(String jsonBodyString)
-    {
-        try
-        {
-            URL url = new URL(baseUrl.toString() + "auth");
-            System.out.println(url);
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("POST");
-
-            //Set the request header content type
-            conn.setRequestProperty("Content-Type", "application/json");
-            //Set the response header content type
-            conn.setRequestProperty("Accept", "application/json");
-            // Enable write access to output stream
-            conn.setDoOutput(true);
-
-            //Write JSON string to output stream as bytes
-            OutputStream os = conn.getOutputStream();
-            byte[] input = jsonBodyString.getBytes("utf-8");
-            os.write(input, 0, input.length);
-
-            //Read jwt if successful
-            if(conn.getResponseCode() == 201)
-                setJwt(jwtParser(getResponseBody()));
-
-            //Safety
-            conn.disconnect();
-
-            return conn.getResponseCode();
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-        }
-        return FAILURE_CODE;
+        return conn.getResponseCode();
     }
 
     public String formatAuthRequestBody(int id, String password, int delay, String steps)

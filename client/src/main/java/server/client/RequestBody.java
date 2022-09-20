@@ -10,4 +10,12 @@ public class RequestBody
                             ", \"steps\": " + steps + "}}";
         return clientInfo + serverInfo + actionsInfo;
     }
+
+    public static String formatChangeRequest(int id, String jwt, int amount)
+    {
+        String idInfo = "{\"id\": " + id + ", ";
+        String jwtInfo = "\"jwt\": " + jwt + ", ";
+        String amountInfo = "\"amount\":: " + amount + "}";
+        return idInfo + jwtInfo + amountInfo;
+    }
 }

@@ -19,9 +19,16 @@ public class RequestsTest
     @Test
     void testGetRequest()
     {
-        Request request = new Request(url);
-        int response = request.getRequest();
-        assertEquals(418, response);
+        try
+        {
+            Request request = new Request(url);
+            int response = request.getRequest();
+            assertEquals(418, response);
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
     @Test
@@ -32,14 +39,21 @@ public class RequestsTest
         int delay = 100;
         String steps = "[\"INCREASE 1\"" + ", " + "\"INCREASE 1\"]";
 
-        Request request = new Request(url);
-        request.setIp("\"" + ip + "\"");
-        request.setPort(port);
-        String generatedQuery = request.formatAuthRequestBody(id, password, delay, steps);
+        try
+        {
+            Request request = new Request(url);
+            request.setIp("\"" + ip + "\"");
+            request.setPort(port);
+            String generatedQuery = request.formatAuthRequestBody(id, password, delay, steps);
 
-        String desiredQuery = "{\"id\": 1, \"password\": \"pass\", \"server\": {\"ip\": \"" + ip + "\", \"port\": "+ port +"}, " +
-                "\"actions\": {\"delay\": 100, \"steps\": [\"INCREASE 1\", \"INCREASE 1\"]}}";
-        assertEquals(desiredQuery, generatedQuery);
+            String desiredQuery = "{\"id\": 1, \"password\": \"pass\", \"server\": {\"ip\": \"" + ip + "\", \"port\": "+ port +"}, " +
+                    "\"actions\": {\"delay\": 100, \"steps\": [\"INCREASE 1\", \"INCREASE 1\"]}}";
+            assertEquals(desiredQuery, generatedQuery);
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
     @Test
@@ -50,13 +64,19 @@ public class RequestsTest
         int delay = 100;
         String steps = "[\"INCREASE 1\"" + ", " + "\"INCREASE 1\"]";
 
-        Request request = loginSetup();
+        try
+        {
+            Request request = loginSetup();
 
-        String generatedBody = request.formatAuthRequestBody(id, password, delay, steps);
-        int responseCode = request.postAuthRequest(generatedBody);
-        System.out.println(responseCode);
-        assertEquals(201, responseCode);
-        assertTrue(!request.getJwt().equals(""));
+            int responseCode = request.postAuthRequest(id, password, delay, steps);
+            System.out.println(responseCode);
+            assertEquals(201, responseCode);
+            assertTrue(!request.getJwt().equals(""));
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
     @Test
@@ -67,17 +87,24 @@ public class RequestsTest
         String password = "pass";
         int delay = 100;
         String steps = "[\"INCREASE 1\"" + ", " + "\"INCREASE 1\"]";
-        Request request = loginSetup();
 
-        String generatedBody = request.formatAuthRequestBody(id, password, delay, steps);
-        int responseCode = request.postAuthRequest(generatedBody);
-        assertEquals(201, responseCode);
+        try
+        {
+            Request request = loginSetup();
 
-        int increaseResponseCode = request.postIncreaseRequest(id, 1, request.getJwt());
-        assertEquals(200, increaseResponseCode);
+            int responseCode = request.postAuthRequest(id, password, delay, steps);
+            assertEquals(201, responseCode);
+
+            int increaseResponseCode = request.postIncreaseRequest(id, 1, request.getJwt());
+            assertEquals(200, increaseResponseCode);
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
-    public Request loginSetup()
+    public Request loginSetup() throws Exception
     {
         Request request = new Request(url);
 
@@ -89,7 +116,7 @@ public class RequestsTest
     }
 
     @Test
-    void string_equals()
+    void jwt_equals()
     {
         assertEquals("5c3885c6f012373c2a262d8c46818652a68a410e4d077b3ee3db36eb467de009d9975073e29cb65f28f5be423600f9cd1917d6852b0a79a825482047a5c094eb",
                 "5c3885c6f012373c2a262d8c46818652a68a410e4d077b3ee3db36eb467de009d9975073e29cb65f28f5be423600f9cd1917d6852b0a79a825482047a5c094eb");
