@@ -9,7 +9,6 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-//TODO Return correct error status code instead of FAILURE_CODE
 public class Request
 {
     private URL baseUrl;
@@ -72,9 +71,11 @@ public class Request
         return conn.getResponseCode();
     }
 
-    public int postIncreaseRequest(int id, int amount, String jwt) throws Exception
+    public int postChangeRequest(String change, int id, int amount, String jwt) throws Exception
     {
-        URL url = new URL(baseUrl.toString() + "increase?id=" + id + "&amount=" + amount + "&jwt=" + jwt);
+        String path = changeRequestPath(change);
+
+        URL url = new URL(baseUrl.toString() + path + "?id=" + id + "&amount=" + amount + "&jwt=" + jwt);
         System.out.println(url);
         conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("POST");
@@ -85,6 +86,12 @@ public class Request
         conn.setRequestProperty("Accept", "application/json");
         // Enable write access to output stream
         conn.setDoOutput(true);
+
+        //Write JSON string to output stream as bytes
+        String jsonBodyString = RequestBody.formatChangeRequest(id, jwt,  amount);
+        OutputStream os = conn.getOutputStream();
+        byte[] input = jsonBodyString.getBytes("utf-8");
+        os.write(input, 0, input.length);
 
         if (conn.getResponseCode() == 200)
             setCounter(counterParser(getResponseBody()));
@@ -131,6 +138,19 @@ public class Request
         int jsonIndexEndSeparator = responseMessage.indexOf("}");
         String counterValue = responseMessage.substring(jsonIndexStartSeparator, jsonIndexEndSeparator);
         return Integer.parseInt(counterValue);
+    }
+
+    private String changeRequestPath(String change)
+    {
+        switch(change)
+        {
+            case "INCREASE":
+                return "increase";
+            case "DECREASE":
+                return "decrease";
+            default:
+                return "";
+        }
     }
 }
 

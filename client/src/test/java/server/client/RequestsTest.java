@@ -81,24 +81,30 @@ public class RequestsTest
     }
 
     @Test
-    void testIncreasePostRequest()
+    void testChangePostRequest()
     {
         int id = 2;
         String password = "pass";
         int delay = 100;
-        String steps = "[\"INCREASE 1\"" + ", " + "\"INCREASE 1\"]";
+        String steps = "[\"INCREASE 1\"" + ", " + "\"DECREASE 1\"]";
 
         try
         {
+            //Login
             Request request = loginSetup();
-
             int responseCode = request.postAuthRequest(id, password, delay, steps);
             assertEquals(201, responseCode);
 
-            int increaseResponseCode = request.postIncreaseRequest(id, 1, request.getJwt());
+            //Increase
+            int increaseResponseCode = request.postChangeRequest("INCREASE", id, 1, request.getJwt());
             assertEquals(200, increaseResponseCode);
-
             assertEquals(1, request.getCounter());
+
+            //Decrease
+            int decreaseResponseCode = request.postChangeRequest("DECREASE", id, 1, request.getJwt());
+            assertEquals(200, decreaseResponseCode);
+            assertEquals(0, request.getCounter());
+
         }
         catch(Exception e)
         {
