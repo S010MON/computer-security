@@ -24,13 +24,17 @@ public class Client extends BorderPane
 
     public void execute(int id, String password, ActionsPane actions)
     {
-        Request authRequest = new Request("http://127.0.0.1/");
-        String steps = actions.getSteps();
+        try
+        {
+            Request authRequest = new Request("http://127.0.0.1/");
+            String steps = actions.getSteps();
 
-        String requestBody = authRequest.formatAuthRequestBody(id, password, 100, steps);
-        int authStatus = authRequest.postAuthRequest(id, password, requestBody);
-        System.out.println(authStatus);
+            int authStatus = authRequest.postAuthRequest(id, password, 100, steps);
+            System.out.println(authStatus);
 
+        } catch(Exception e) {
+            System.out.println("Somebody done gone fucked up");
+        }
 
     }
 

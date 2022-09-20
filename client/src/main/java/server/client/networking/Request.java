@@ -1,7 +1,8 @@
-package server.client;
+package server.client.networking;
 
 import lombok.Getter;
 import lombok.Setter;
+import server.client.RequestBody;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
