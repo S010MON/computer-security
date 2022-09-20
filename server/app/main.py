@@ -23,6 +23,12 @@ class AuthRequest(BaseModel):
     actions: Actions
 
 
+class ChangeRequest(BaseModel):
+    id: int
+    jwt: str
+    amount: int
+
+
 class Client:
 
     def __init__(self, jwt: str, server: Server, actions: Actions) -> None:
@@ -133,19 +139,20 @@ async def login(authRequest: AuthRequest):
 
 
 @app.post("/increase", status_code=200)
-async def increase(id: int, amount: int, jwt: str, request: Request):
+async def increase(changeRequest: ChangeRequest, request: Request):
+
     ip = request.client.host
     port = request.client.port
 
-    if id not in users:
+    if changeRequest.id not in users:
         raise HTTPException(status_code=404, detail='Not found')
 
-    user = users[id]
+    user = users[changeRequest.id]
 
-    if not user.verified(ip, port, jwt):
+    if not user.verified(ip, port, changeRequest.jwt):
         raise HTTPException(status_code=401, detail='Unauthorised')
 
-    result = user.increase(amount, jwt)
+    result = user.increase(changeRequest.amount, changeRequest.jwt)
     if not result:
         raise HTTPException(status_code=401, detail='Unauthorised')
 
@@ -153,19 +160,19 @@ async def increase(id: int, amount: int, jwt: str, request: Request):
 
 
 @app.post("/decrease", status_code=200)
-async def decrease(id: int, amount: int, jwt: str, request: Request):
+async def decrease(changeRequest: ChangeRequest, request: Request):
     ip = request.client.host
     port = request.client.port
 
-    if id not in users:
+    if changeRequest.id not in users:
         raise HTTPException(status_code=404, detail='Not found')
 
-    user = users[id]
+    user = users[changeRequest.id]
 
-    if not user.verified(ip, port, jwt):
+    if not user.verified(ip, port, changeRequest.jwt):
         raise HTTPException(status_code=401, detail='Unauthorised')
 
-    result = user.decrease(amount, jwt)
+    result = user.decrease(changeRequest.amount, changeRequest.jwt)
     if not result:
         raise HTTPException(status_code=401, detail='Unauthorised')
 

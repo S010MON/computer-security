@@ -2,18 +2,13 @@ package server.client;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.boot.json.JsonParseException;
-import org.springframework.boot.json.JsonParser;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.List;
-import java.util.Map;
 
-//TODO Return correct error status code instead of FAILURE_CODE
 public class Request
 {
     private URL baseUrl;
@@ -21,125 +16,100 @@ public class Request
     @Setter private String ip;
     @Setter private int port;
     @Setter @Getter private String jwt = "";
-    private final int FAILURE_CODE = 404;
+    @Setter @Getter private int counter;
 
 
-    public Request(String baseURL)
+    public Request(String baseURL) throws Exception
     {
-        try
-        {
-            baseUrl = new URL(baseURL);
-            ip = "\"" + baseUrl.getHost() + "\"";
-            port = baseUrl.getPort();
+        baseUrl = new URL(baseURL);
+        ip = "\"" + baseUrl.getHost() + "\"";
+        port = baseUrl.getPort();
 
-            conn = (HttpURLConnection) this.baseUrl.openConnection();
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-        }
+        conn = (HttpURLConnection) this.baseUrl.openConnection();
     }
 
+    public int getRequest() throws Exception
+    {
+        conn.setRequestMethod("GET");
+        conn.connect();
 
-    public int getRequest() {
-        try
-        {
-            conn.setRequestMethod("GET");
-            conn.connect();
+        System.out.println(conn.getResponseMessage());
 
-            System.out.println(conn.getResponseMessage());
+        //Safety
+        conn.disconnect();
 
-            //Safety
-            conn.disconnect();
-
-            return conn.getResponseCode();
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-
-        return FAILURE_CODE;
+        return conn.getResponseCode();
     }
 
-    public int postIncreaseRequest(int id, int amount, String jwt)
+    public int postAuthRequest(int id, String password, int delay, String steps) throws Exception
     {
-        try {
-            URL url = new URL(baseUrl.toString() + "increase?id=" + id + "&amount=" + amount + "&jwt=" + jwt);
-            System.out.println(url);
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("POST");
+        URL url = new URL(baseUrl.toString() + "auth");
+        System.out.println(url);
+        conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("POST");
 
-            //Set the request header content type
-            conn.setRequestProperty("Content-Type", "application/json");
-            //Set the response header content type
-            conn.setRequestProperty("Accept", "application/json");
-            // Enable write access to output stream
-            conn.setDoOutput(true);
+        //Set the request header content type
+        conn.setRequestProperty("Content-Type", "application/json");
+        //Set the response header content type
+        conn.setRequestProperty("Accept", "application/json");
+        // Enable write access to output stream
+        conn.setDoOutput(true);
 
-            if (conn.getResponseCode() == 200)
-                //TODO Update counter
-                System.out.println(conn.getResponseMessage());
+        //Write JSON string to output stream as bytes
+        String jsonBodyString = formatAuthRequestBody(id, password, delay, steps);
+        OutputStream os = conn.getOutputStream();
+        byte[] input = jsonBodyString.getBytes("utf-8");
+        os.write(input, 0, input.length);
 
-            //Safety
-            conn.disconnect();
+        //Read jwt if successful
+        if(conn.getResponseCode() == 201)
+            setJwt(jwtParser(getResponseBody()));
 
-            return conn.getResponseCode();
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-        }
+        //Safety
+        conn.disconnect();
 
-        return FAILURE_CODE;
+        return conn.getResponseCode();
     }
 
-    public int postAuthRequest(int id, String password, String jsonBodyString)
+    public int postChangeRequest(String change, int id,  int amount, String jwt) throws Exception
     {
-        try
-        {
-            URL url = new URL(baseUrl.toString() + "auth");
-            System.out.println(url);
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("POST");
+        String path = changeRequestPath(change);
 
-            //Set the request header content type
-            conn.setRequestProperty("Content-Type", "application/json");
-            //Set the response header content type
-            conn.setRequestProperty("Accept", "application/json");
-            // Enable write access to output stream
-            conn.setDoOutput(true);
+        URL url = new URL(baseUrl.toString() + path);
+        System.out.println(url);
+        conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("POST");
 
-            //Write JSON string to output stream as bytes
-            OutputStream os = conn.getOutputStream();
-            byte[] input = jsonBodyString.getBytes("utf-8");
-            os.write(input, 0, input.length);
+        //Set the request header content type
+        conn.setRequestProperty("Content-Type", "application/json");
+        //Set the response header content type
+        conn.setRequestProperty("Accept", "application/json");
+        // Enable write access to output stream
+        conn.setDoOutput(true);
 
-            //Read jwt if successful
-            if(conn.getResponseCode() == 201)
-                setJwt(jwtParser(getResponseBody()));
+        //Write JSON string to output stream as bytes
+        String jsonBodyString = RequestBody.formatChangeRequest(id, jwt,  amount);
+        OutputStream os = conn.getOutputStream();
+        byte[] input = jsonBodyString.getBytes("utf-8");
+        os.write(input, 0, input.length);
 
-            //Safety
-            conn.disconnect();
+        if (conn.getResponseCode() == 200)
+            setCounter(counterParser(getResponseBody()));
 
-            return conn.getResponseCode();
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-        }
-        return FAILURE_CODE;
+        //Safety
+        conn.disconnect();
+
+        return conn.getResponseCode();
     }
 
     public String formatAuthRequestBody(int id, String password, int delay, String steps)
     {
-        String clientInfo = "{\"id\": " + id + ", \"password\": " + "\"" + password + "\", ";
-        String serverInfo = "\"server\": {\"ip\": " + ip + ", \"port\": " + port + "}, ";
-        String actionsInfo = "\"actions\": {\"delay\": " + delay +
-                            ", \"steps\": " + steps + "}}";
-        String request =clientInfo + serverInfo + actionsInfo;
-        System.out.println(request);
-        return request;
+        return RequestBody.formatAuthRequest(id,
+                password,
+                delay,
+                steps,
+                port,
+                ip);
     }
 
     private String getResponseBody() throws Exception
@@ -151,7 +121,6 @@ public class Request
         {
             response = response + line;
         }
-        System.out.println(response);
         return response;
     }
 
@@ -161,6 +130,27 @@ public class Request
         int jsonIndexEndSeparator = responseMessage.indexOf("\"}") + 1;
         String jwtFormatted = responseMessage.substring(jsonIndexStartSeparator, jsonIndexEndSeparator).replace("\"", "");
         return jwtFormatted;
+    }
+
+    private int counterParser(String responseMessage)
+    {
+        int jsonIndexStartSeparator = responseMessage.indexOf(":") + 1;
+        int jsonIndexEndSeparator = responseMessage.indexOf("}");
+        String counterValue = responseMessage.substring(jsonIndexStartSeparator, jsonIndexEndSeparator);
+        return Integer.parseInt(counterValue);
+    }
+
+    private String changeRequestPath(String change)
+    {
+        switch(change)
+        {
+            case "INCREASE":
+                return "increase";
+            case "DECREASE":
+                return "decrease";
+            default:
+                return "";
+        }
     }
 }
 
