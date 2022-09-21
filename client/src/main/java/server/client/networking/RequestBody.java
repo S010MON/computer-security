@@ -1,4 +1,4 @@
-package server.client;
+package server.client.networking;
 
 public class RequestBody
 {
@@ -16,7 +16,6 @@ public class RequestBody
         String idInfo = "{\"id\": " + id + ", ";
         String jwtInfo = "\"jwt\": \"" + jwt + "\", ";
         String amountInfo = "\"amount\": " + amount + "}";
-        System.out.println(idInfo + jwtInfo + amountInfo);
         return idInfo + jwtInfo + amountInfo;
     }
 }

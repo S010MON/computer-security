@@ -2,7 +2,6 @@ package server.client.networking;
 
 import lombok.Getter;
 import lombok.Setter;
-import server.client.RequestBody;
 import server.client.gui.Direction;
 
 import java.io.BufferedReader;
@@ -13,18 +12,19 @@ import java.net.URL;
 
 public class Session
 {
+    private final String url = "https://cs-server-1.herokuapp.com/";
     private URL baseUrl;
     private String jwt = "";
     private HttpURLConnection conn;
     @Getter private int id;
     @Setter private String ip;
     @Setter private int port;
-    @Setter @Getter private int counter;
+    @Getter private int counter;
 
 
     public Session() throws Exception
     {
-        baseUrl = new URL("http://127.0.0.1/");
+        baseUrl = new URL(url);
         ip = "\"" + baseUrl.getHost() + "\"";
         port = baseUrl.getPort();
 
@@ -45,8 +45,6 @@ public class Session
         conn.setRequestMethod("GET");
         conn.connect();
 
-        System.out.println(conn.getResponseMessage());
-
         //Safety
         conn.disconnect();
 
@@ -57,7 +55,6 @@ public class Session
     {
         URL url = new URL(baseUrl.toString() + "auth");
         this.id = id;
-        System.out.println(url);
         conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("POST");
 
@@ -89,7 +86,6 @@ public class Session
         String path = changeRequestPath(direction.toString());
 
         URL url = new URL(baseUrl.toString() + path);
-        System.out.println(url);
         conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("POST");
 
@@ -107,7 +103,7 @@ public class Session
         os.write(input, 0, input.length);
 
         if (conn.getResponseCode() == 200)
-            setCounter(counterParser(getResponseBody()));
+            counter = counterParser(getResponseBody());
 
         //Safety
         conn.disconnect();
