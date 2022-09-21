@@ -1,7 +1,6 @@
 package server.client.networking;
 
 import javafx.animation.Animation;
-import javafx.animation.AnimationTimer;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.layout.BorderPane;
@@ -10,9 +9,6 @@ import org.springframework.boot.SpringApplication;
 import server.client.gui.Action;
 import server.client.gui.ControlPane;
 import server.client.gui.ActionsPane;
-import server.client.gui.Direction;
-
-import java.io.IOException;
 
 public class Client extends BorderPane
 {
@@ -47,10 +43,9 @@ public class Client extends BorderPane
             timeline = new Timeline(new KeyFrame( Duration.millis(controlPane.getDelay() * 1000), ae -> fireOffAction()));
             timeline.setCycleCount(Animation.INDEFINITE);
             timeline.play();
-
-            System.out.println(authStatus);
-
-        } catch(Exception e) {
+        }
+        catch(Exception e)
+        {
             System.out.println("Somebody done gone fucked up\n\n\n\n");
             e.printStackTrace();
         }

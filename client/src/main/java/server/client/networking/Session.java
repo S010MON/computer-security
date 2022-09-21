@@ -2,7 +2,6 @@ package server.client.networking;
 
 import lombok.Getter;
 import lombok.Setter;
-import server.client.RequestBody;
 import server.client.gui.Direction;
 
 import java.io.BufferedReader;
@@ -46,8 +45,6 @@ public class Session
         conn.setRequestMethod("GET");
         conn.connect();
 
-        System.out.println(conn.getResponseMessage());
-
         //Safety
         conn.disconnect();
 
@@ -58,7 +55,6 @@ public class Session
     {
         URL url = new URL(baseUrl.toString() + "auth");
         this.id = id;
-        System.out.println(url);
         conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("POST");
 
@@ -90,7 +86,6 @@ public class Session
         String path = changeRequestPath(direction.toString());
 
         URL url = new URL(baseUrl.toString() + path);
-        System.out.println(url);
         conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("POST");
 
