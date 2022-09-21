@@ -4,6 +4,9 @@ import logging
 import uvicorn
 import time
 import hashlib
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 
 class Server(BaseModel):
@@ -110,17 +113,25 @@ class User:
         return True
 
 
+limiter = Limiter(key_func=get_remote_address)
 app = FastAPI()
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
 users = {}
 
 
 @app.get("/", status_code=418)
-async def root():
+@limiter.limit("10/second")
+async def root(request: Request):
     return {"message": "I am a teapot"}
 
 
 @app.post("/auth", status_code=201)
-async def login(authRequest: AuthRequest):
+@limiter.limit("10/second")
+async def login(authRequest: AuthRequest, request: Request):
+    print(authRequest)
+    print(type(authRequest))
 
     pwd_hash = hash_password(authRequest.password)
 
@@ -139,6 +150,7 @@ async def login(authRequest: AuthRequest):
 
 
 @app.post("/increase", status_code=200)
+@limiter.limit("10/second")
 async def increase(changeRequest: ChangeRequest, request: Request):
 
     ip = request.client.host
@@ -160,6 +172,7 @@ async def increase(changeRequest: ChangeRequest, request: Request):
 
 
 @app.post("/decrease", status_code=200)
+@limiter.limit("10/second")
 async def decrease(changeRequest: ChangeRequest, request: Request):
     ip = request.client.host
     port = request.client.port
@@ -180,7 +193,8 @@ async def decrease(changeRequest: ChangeRequest, request: Request):
 
 
 @app.post("/logout", status_code=200)
-async def logout(id: int, jwt: str):
+@limiter.limit("10/second")
+async def logout(id: int, jwt: str, request: Request):
     if id not in users:
         raise HTTPException(status_code=404, detail='User not found')
 
@@ -192,6 +206,7 @@ async def logout(id: int, jwt: str):
 
 
 @app.post("/ip", status_code=200)
+@limiter.limit("10/second")
 def test_IP(request: Request):
     return {'ip address': request.client.host, 'port': request.client.port}
 
