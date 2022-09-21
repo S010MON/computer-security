@@ -11,7 +11,7 @@ version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '17'
 
 application {
-	mainClass = 'server.client.HelloWorld'
+	mainClass = 'server.client.Launcher'
 }
 
 javafx {

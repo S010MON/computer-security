@@ -14,9 +14,7 @@ public class ControlPane extends GridPane
     TextField userIdInput = new TextField("1");
     TextField passwordInput = new TextField("pass");
     Label counterAmount = new Label("");
-
     TextField delayInput = new TextField("1");
-
 
     public ControlPane(ActionsPane actionsPane, Client client)
     {
@@ -74,8 +72,6 @@ public class ControlPane extends GridPane
         Label counterLbl = new Label("Counter: ");
         add(counterLbl, 0, 9);
         add(counterAmount, 1, 9);
-
-
 
         setVisible(true);
     }

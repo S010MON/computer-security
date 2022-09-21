@@ -20,7 +20,7 @@ public class Client extends BorderPane
     public Client()
     {
         String[] args = {};
-        SpringApplication.run(ClientApplication.class, args);
+        SpringApplication.run(Server.class, args);
 
         actionsPane = new ActionsPane();
         this.setRight(actionsPane);
@@ -29,7 +29,6 @@ public class Client extends BorderPane
         this.setLeft(controlPane);
 
         session = null;
-
     }
 
     public void execute(int id, String password, ActionsPane actions)
@@ -43,9 +42,10 @@ public class Client extends BorderPane
             timeline = new Timeline(new KeyFrame( Duration.millis(controlPane.getDelay() * 1000), ae -> fireOffAction()));
             timeline.setCycleCount(Animation.INDEFINITE);
             timeline.play();
-        }
-        catch(Exception e)
-        {
+
+            System.out.println(authStatus);
+
+        } catch(Exception e) {
             System.out.println("Somebody done gone fucked up\n\n\n\n");
             e.printStackTrace();
         }
