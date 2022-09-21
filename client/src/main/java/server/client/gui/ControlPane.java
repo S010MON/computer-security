@@ -15,6 +15,9 @@ public class ControlPane extends GridPane
     TextField passwordInput = new TextField("pass");
     Label counterAmount = new Label("");
 
+    TextField delayInput = new TextField("1");
+
+
     public ControlPane(ActionsPane actionsPane, Client client)
     {
         this.actionsPane = actionsPane;
@@ -22,47 +25,69 @@ public class ControlPane extends GridPane
         setHgap(10);
         setVgap(10);
 
+        // Row 1
         Label userIdLbl = new Label("User ID (int):");
         add(userIdLbl, 0,0);
         add(userIdInput, 1,0);
 
+        // Row 2
         Label passwordLbl = new Label("Password:");
         add(passwordLbl, 0,1);
         add(passwordInput, 1,1);
 
-        Button submitBtn = new Button("Submit");
-        submitBtn.setOnAction(event -> client.execute(parseID(), passwordInput.getText(), actionsPane));
-        add(submitBtn, 1,7);
-
+        // Row 3
         Label actionsLbl = new Label("Actions:");
-        add(actionsLbl, 0,4);
+        add(actionsLbl, 0,3);
 
+        // Row 4
         Label amountLbl = new Label("Amount:");
-        add(amountLbl, 0,5);
+        add(amountLbl, 0,4);
+        amountInput.setText("1");
+        amountInput.setMaxWidth(40);
+        add(amountInput, 1,4);
 
+        // Row 5
+        Label delayLbl = new Label("Delay:");
+        add(delayLbl, 0,5);
+        delayInput.setMaxWidth(40);
+        add(delayInput, 1, 5);
+
+        // Row 6
         Button incBtn = new Button("INCREASE");
         incBtn.setMinSize(40, 20);
         incBtn.setOnAction(event -> actionsPane.addIncrease(parseAmountInput()));
-        add(incBtn, 0,6);
-
-        amountInput.setText("10");
-        amountInput.setMaxWidth(40);
-        add(amountInput, 1,5);
+        add(incBtn, 0,7);
 
         Button decBtn = new Button("DECREASE");
         decBtn.setMinSize(40, 20);
         decBtn.setOnAction(event -> actionsPane.addDecrease(parseAmountInput()));
-        add(decBtn, 1,6);
+        add(decBtn, 1,7);
+
+        Button popBtn = new Button("Undo");
+        popBtn.setOnAction(event -> actionsPane.popAction());
+        add(popBtn, 0,8);
+
+        Button submitBtn = new Button("Submit");
+        submitBtn.setOnAction(event -> client.execute(parseID(), passwordInput.getText(), actionsPane));
+        add(submitBtn, 1,8);
 
         Label counterLbl = new Label("Counter: ");
-        add(counterLbl, 0, 8);
-        add(counterAmount, 1, 8);
+        add(counterLbl, 0, 9);
+        add(counterAmount, 1, 9);
 
-        Button popBtn = new Button("Pop!");
-        popBtn.setOnAction(event -> actionsPane.popAction());
-        add(popBtn, 1,9);
+
 
         setVisible(true);
+    }
+
+    public int getDelay()
+    {
+        return parseDelayInput();
+    }
+
+    public void updateCounter(int counter)
+    {
+        counterAmount.setText(Integer.toString(counter));
     }
 
     private int parseAmountInput()
@@ -86,6 +111,18 @@ public class ControlPane extends GridPane
         catch(NumberFormatException e)
         {
             return 0;
+        }
+    }
+
+    private int parseDelayInput()
+    {
+        try
+        {
+            return Integer.parseInt(delayInput.getText());
+        }
+        catch(NumberFormatException e)
+        {
+            return 1;
         }
     }
 }

@@ -11,12 +11,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class RequestsTest
 {
     // PYCHARM
-    String url = "http://127.0.0.1:8000/";
+//    String url = "http://127.0.0.1:8000/";
     String ip = "127.0.0.1";
 
     // Docker
 //    String url =  "http://0.0.0.0:8000/";
 //    String ip = "0.0.0.0";
+
+    // Deployed
+    String url = "https://cs-server-1.herokuapp.com/";
 
     int port = 8000;
 
