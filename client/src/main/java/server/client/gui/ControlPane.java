@@ -23,7 +23,7 @@ public class ControlPane extends GridPane
         setHgap(10);
         setVgap(10);
         
-        Label userIdLbl = new Label("User\sID\s(int):");
+        Label userIdLbl = new Label("User_ID(int):");
         add(userIdLbl, 0,0);
         add(userIdInput, 1,0);
 
