@@ -22,35 +22,29 @@ public class ControlPane extends GridPane
         setPadding(new Insets(10));
         setHgap(10);
         setVgap(10);
-
-        // Row 1
-        Label userIdLbl = new Label("User ID (int):");
+        
+        Label userIdLbl = new Label("User\sID\s(int):");
         add(userIdLbl, 0,0);
         add(userIdInput, 1,0);
 
-        // Row 2
         Label passwordLbl = new Label("Password:");
         add(passwordLbl, 0,1);
         add(passwordInput, 1,1);
 
-        // Row 3
         Label actionsLbl = new Label("Actions:");
         add(actionsLbl, 0,3);
 
-        // Row 4
         Label amountLbl = new Label("Amount:");
         add(amountLbl, 0,4);
         amountInput.setText("1");
         amountInput.setMaxWidth(40);
         add(amountInput, 1,4);
 
-        // Row 5
         Label delayLbl = new Label("Delay:");
         add(delayLbl, 0,5);
         delayInput.setMaxWidth(40);
         add(delayInput, 1, 5);
 
-        // Row 6
         Button incBtn = new Button("INCREASE");
         incBtn.setMinSize(40, 20);
         incBtn.setOnAction(event -> actionsPane.addIncrease(parseAmountInput()));
