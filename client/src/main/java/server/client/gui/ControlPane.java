@@ -80,6 +80,11 @@ public class ControlPane extends GridPane
         counterAmount.setText(Integer.toString(counter));
     }
 
+    public void clearCounter()
+    {
+        counterAmount.setText(" ");
+    }
+
     private int parseAmountInput()
     {
         try

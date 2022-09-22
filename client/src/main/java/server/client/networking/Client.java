@@ -64,6 +64,7 @@ public class Client extends BorderPane
             }
             else
             {
+                controlPane.clearCounter();
                 timeline.stop();
             }
         }
