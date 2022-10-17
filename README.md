@@ -40,8 +40,8 @@ Response:
 Query:
 ```json
 {
-  "id": 1
-  "jwt": "1pass"
+  "id": 1,
+  "jwt": "1pass",
   "amount": 1
 }
 
@@ -58,8 +58,8 @@ Response:
 Query:
 ```json
 {
-  "id": 1
-  "jwt": "1pass"
+  "id": 1,
+  "jwt": "1pass",
   "amount": 1
 }
 
@@ -76,7 +76,7 @@ Response:
 Query:
 ```json
 {
-  "id": 1
+  "id": 1,
   "jwt": "1pass"
 }
 
