@@ -47,6 +47,8 @@ class User:
     def __init__(self, id: int, pwd_hash: str, jwt: str, server: Server, actions: Actions):
         self.id = id
         self.pwd_hash = pwd_hash
+        self.pwd_attempts = 0
+        self.unlock_time = time.time()
         self.counter = 0
         self.clients = {jwt:Client(jwt, server, actions)}
 
@@ -113,6 +115,14 @@ class User:
         return True
 
 
+    def failed_auth(self):
+        self.pwd_attempts += 1
+        if self.pwd_attempts > 3:
+            self.unlock_time = time.time() # TODO add wait time here
+
+    def not_locked(self):
+        return self.unlock_time < time.time()
+
 limiter = Limiter(key_func=get_remote_address)
 app = FastAPI()
 app.state.limiter = limiter
@@ -135,17 +145,21 @@ async def login(authRequest: AuthRequest, request: Request):
 
     pwd_hash = hash_password(authRequest.password)
 
+    # If a new user
     if id not in users:
         jwt = hash_user(authRequest.id, authRequest.password)
         user = User(authRequest.id, pwd_hash, jwt, authRequest.server, authRequest.actions)
         users[authRequest.id] = user
         return {'jwt': jwt}
 
-    elif users[authRequest.id].pwd_hash == pwd_hash:
+    # If existing user
+    elif users[authRequest.id].pwd_hash == pwd_hash and users[authRequest.id].not_locked():
         jwt = hash_user(authRequest.id, authRequest.password)
         users[authRequest.id].new_client(jwt, authRequest.server, authRequest.actions)
         return {'jwt': jwt}
 
+    # If user is not authroised
+    users[authRequest.id].failed_auth()
     raise HTTPException(status_code=404, detail='User not found')
 
 
