@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException, Request
 import uvicorn
+import verfiy
 import time
 import hashlib
 from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -24,6 +25,14 @@ async def root(request: Request):
 async def login(authRequest: AuthRequest, request: Request):
     print(authRequest)
     pwd_hash = hash_password(authRequest.password)
+
+    actionVerifier = verfiy.valid_actions(authRequest.actions)
+    if not actionVerifier:
+        raise HTTPException(status_code=403, detail='Change threshold breached')
+
+    delayVerifier = verfiy.valid_delay(authRequest.actions.delay)
+    if not delayVerifier:
+        raise HTTPException(status_code=403, detail='Delay threshold breached')
 
     # If a new user
     if authRequest.id not in users:
