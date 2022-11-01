@@ -25,6 +25,13 @@ async def login(authRequest: AuthRequest, request: Request):
     print(authRequest)
     pwd_hash = hash_password(authRequest.password)
 
+    # Change limit verification
+    threshold = 100
+    for step in authRequest.actions.steps:
+        action = step.split(" ")
+        if not (0 <= int(action[1]) <= threshold):
+            raise HTTPException(status_code=403, detail='Change value threshold breached')
+
     # If a new user
     if authRequest.id not in users:
         jwt = hash_user(authRequest.id, authRequest.password)
