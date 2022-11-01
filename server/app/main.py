@@ -126,7 +126,7 @@ async def decrease(changeRequest: ChangeRequest, request: Request):
 
 @app.post("/logout", status_code=200)
 @limiter.limit("10/second")
-async def logout(id: int, jwt: str, request: Request):
+async def logout(id: str, jwt: str, request: Request):
     if id not in users:
         logActivity(f"User id: {id} not found to logout")
         raise HTTPException(status_code=404, detail='User not found')

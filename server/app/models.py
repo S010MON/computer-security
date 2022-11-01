@@ -52,7 +52,7 @@ class User:
         self.clients = {jwt: Client(jwt, server, actions)}
         self.lock_time = 2
 
-    def verified(self, ip: str, port: int, jwt: str, pwd_context: CryptContext) -> bool:
+    def verified(self, ip: str, port: int, jwt: str) -> bool:
 
         if jwt not in self.clients:
             return False
