@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+import bcrypt
 from pydantic import BaseModel
 
 
@@ -69,10 +70,10 @@ class User:
 
         return True
 
-    def check_password(self, pwd_hash):
+    def check_password(self, pwd):
         if self.unlock_time > datetime.now():
             return False
-        return self.pwd_hash == pwd_hash
+        return bcrypt.checkpw(pwd.encode(), self.pwd_hash)
 
     def new_client(self, jwt: str, server: Server, actions: Actions):
         self.clients[jwt] = Client(jwt, server, actions)
