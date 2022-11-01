@@ -12,8 +12,9 @@ def valid_id(id: str) -> bool:
         return False
     if len(id) > 256:
         return False
-    regex = re.compile("[a-zA-Z0-9]")
+    regex = re.compile(r"[a-zA-Z0-9]+")
     match = regex.fullmatch(str(id))
+    print(match)
     return bool(match)
 
 

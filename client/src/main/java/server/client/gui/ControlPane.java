@@ -64,7 +64,11 @@ public class ControlPane extends GridPane
         add(popBtn, 0,8);
 
         submitBtn = new Button("Submit");
-        submitBtn.setOnAction(event -> execute());
+        submitBtn.setOnAction(event -> {
+            if(active)
+                execute();
+            active = false;
+        });
         add(submitBtn, 1,8);
 
         Label counterLbl = new Label("Counter: ");
