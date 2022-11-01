@@ -30,7 +30,12 @@ async def login(authRequest: AuthRequest, request: Request):
     for step in authRequest.actions.steps:
         action = step.split(" ")
         if not (0 <= int(action[1]) <= threshold):
-            raise HTTPException(status_code=403, detail='Change value threshold breached')
+            raise HTTPException(status_code=403, detail='Change threshold breached')
+
+    # Delay verfication
+    thresholdDelay = 120
+    if not (0 <= int(authRequest.actions.delay) <= thresholdDelay):
+        raise HTTPException(status_code=403, detail='Delay threshold breached')
 
     # If a new user
     if authRequest.id not in users:
