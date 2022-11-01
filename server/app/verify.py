@@ -14,6 +14,7 @@ def valid_id(id: str) -> bool:
         return False
     regex = re.compile(r"[a-zA-Z0-9]+")
     match = regex.fullmatch(str(id))
+    print(match)
     return bool(match)
 
 
