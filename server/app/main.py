@@ -6,6 +6,7 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from app.models import ChangeRequest, AuthRequest, User
+from app.verify import valid_id, valid_pwd, valid_delay, valid_actions
 
 limiter = Limiter(key_func=get_remote_address)
 app = FastAPI()
@@ -25,8 +26,20 @@ async def login(authRequest: AuthRequest, request: Request):
     print(authRequest)
     pwd_hash = hash_password(authRequest.password)
 
+    if not valid_actions(authRequest.actions):
+        raise HTTPException(status_code=403, detail='Change threshold breached')
+
+    if not valid_delay(authRequest.actions.delay):
+        raise HTTPException(status_code=403, detail='Delay threshold breached')
+
     # If a new user
     if authRequest.id not in users:
+        if not valid_id(authRequest.id):
+            raise HTTPException(status_code=403, detail="Invalid ID: must be combination of numbers and letters only")
+
+        if not valid_pwd(authRequest.password):
+            raise HTTPException(status_code=403, detail="Password not secure enough, commonly used")
+
         jwt = hash_user(authRequest.id, authRequest.password)
         user = User(authRequest.id, pwd_hash, jwt, authRequest.server, authRequest.actions)
         users[authRequest.id] = user
