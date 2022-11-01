@@ -28,6 +28,9 @@ async def login(authRequest: AuthRequest, request: Request):
 
     # If a new user
     if authRequest.id not in users:
+        if not valid_id(authRequest.id):
+            raise HTTPException(status_code=403, detail="Invalid ID: must be combination of numbers and letters only")
+
         if not valid_pwd(authRequest.password):
             raise HTTPException(status_code=403, detail="Password not secure enough, commonly used")
 

@@ -15,7 +15,7 @@ class Actions(BaseModel):
 
 
 class AuthRequest(BaseModel):
-    id: int
+    id: str
     password: str
     server: Server
     actions: Actions

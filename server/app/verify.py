@@ -1,3 +1,5 @@
+import re
+
 common_passwords = set()
 with open("common_passwords.txt") as file:
     data = file.readlines()
@@ -6,9 +8,12 @@ with open("common_passwords.txt") as file:
 
 
 def valid_id(id: str) -> bool:
-    return isinstance(id, str())
+    if not isinstance(id, str):
+        return False
+    regex = re.compile("[a-zA-Z0-9]")
+    match = regex.match(str(id))
+    return bool(match)
 
 
 def valid_pwd(pwd: str) -> bool:
-    print(common_passwords)
     return pwd not in common_passwords
