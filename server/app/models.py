@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
 
 from pydantic import BaseModel
-import logging
 
 
 class Server(BaseModel):
@@ -22,7 +21,7 @@ class AuthRequest(BaseModel):
 
 
 class ChangeRequest(BaseModel):
-    id: int
+    id: str
     jwt: str
     amount: int
 
@@ -93,8 +92,6 @@ class User:
             return False
 
         self.counter += amount
-        logging.basicConfig(filename='log')
-        logging.info(f"{self.id} - increased by: {amount} to {self.counter}")
         return True
 
     def decrease(self, amount: int, jwt: str):
@@ -112,8 +109,6 @@ class User:
             return False
 
         self.counter -= amount
-        logging.basicConfig(filename='log')
-        logging.info(f"User{self.id} - decreased by: {amount} to {self.counter}")
         return True
 
     def failed_auth(self):
