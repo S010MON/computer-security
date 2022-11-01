@@ -15,10 +15,14 @@ public class ControlPane extends GridPane
     TextField passwordInput = new TextField("pass");
     Label counterAmount = new Label("");
     TextField delayInput = new TextField("1");
+    Button submitBtn;
+    boolean active = true;
+    Client client;
 
     public ControlPane(ActionsPane actionsPane, Client client)
     {
         this.actionsPane = actionsPane;
+        this.client = client;
         setPadding(new Insets(10));
         setHgap(10);
         setVgap(10);
@@ -47,20 +51,20 @@ public class ControlPane extends GridPane
 
         Button incBtn = new Button("INCREASE");
         incBtn.setMinSize(40, 20);
-        incBtn.setOnAction(event -> actionsPane.addIncrease(parseAmountInput()));
+        incBtn.setOnAction(event -> {if(active) actionsPane.addIncrease(parseAmountInput());});
         add(incBtn, 0,7);
 
         Button decBtn = new Button("DECREASE");
         decBtn.setMinSize(40, 20);
-        decBtn.setOnAction(event -> actionsPane.addDecrease(parseAmountInput()));
+        decBtn.setOnAction(event -> {if(active) actionsPane.addDecrease(parseAmountInput());});
         add(decBtn, 1,7);
 
         Button popBtn = new Button("Undo");
         popBtn.setOnAction(event -> actionsPane.popAction());
         add(popBtn, 0,8);
 
-        Button submitBtn = new Button("Submit");
-        submitBtn.setOnAction(event -> client.execute(parseID(), passwordInput.getText(), actionsPane));
+        submitBtn = new Button("Submit");
+        submitBtn.setOnAction(event -> execute());
         add(submitBtn, 1,8);
 
         Label counterLbl = new Label("Counter: ");
@@ -83,6 +87,24 @@ public class ControlPane extends GridPane
     public void clearCounter()
     {
         counterAmount.setText(" ");
+    }
+
+    public void setSubmitInactive()
+    {
+        submitBtn.setDisable(true);
+        active = false;
+    }
+
+    public void setSubmitActive()
+    {
+        submitBtn.setDisable(false);
+        active = true;
+    }
+
+    private void execute()
+    {
+        if(active)
+            client.execute(parseID(), passwordInput.getText(), actionsPane);
     }
 
     private int parseAmountInput()

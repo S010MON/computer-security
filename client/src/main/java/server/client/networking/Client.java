@@ -49,7 +49,6 @@ public class Client extends BorderPane
             System.out.println("Somebody done gone fucked up\n\n\n\n");
             e.printStackTrace();
         }
-
     }
 
     private void fireOffAction()
