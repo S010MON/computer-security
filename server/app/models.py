@@ -1,5 +1,9 @@
+import hashlib
+import hmac
 from datetime import datetime, timedelta
 
+import bcrypt
+from passlib.context import CryptContext
 from pydantic import BaseModel
 
 
@@ -69,10 +73,11 @@ class User:
 
         return True
 
-    def check_password(self, pwd_hash):
+    def check_password(self, pwd, pepper):
         if self.unlock_time > datetime.now():
             return False
-        return self.pwd_hash == pwd_hash
+        pepperedPasswordAttempt = hmac.new(pepper.encode(), pwd.encode(), hashlib.sha256).hexdigest()
+        return bcrypt.checkpw(pepperedPasswordAttempt.encode(), self.pwd_hash)
 
     def new_client(self, jwt: str, server: Server, actions: Actions):
         self.clients[jwt] = Client(jwt, server, actions)

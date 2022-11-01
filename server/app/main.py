@@ -1,14 +1,17 @@
+import hashlib
+import hmac
 import logging
 
 from fastapi import FastAPI, HTTPException, Request
 import uvicorn
 import time
-import hashlib
+import bcrypt
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from app.models import ChangeRequest, AuthRequest, User
 from app.verify import valid_id, valid_pwd, valid_delay, valid_actions
+from passlib.context import CryptContext
 
 limiter = Limiter(key_func=get_remote_address)
 app = FastAPI()
@@ -27,7 +30,7 @@ async def root(request: Request):
 @limiter.limit("10/second")
 async def login(authRequest: AuthRequest, request: Request):
     print(authRequest)
-    pwd_hash = hash_password(authRequest.password)
+    pwd_hash = hash_password(authRequest.password, bcrypt.gensalt())
 
     if not valid_actions(authRequest.actions):
         logActivity(f"User id: {authRequest.id} attempted actions exceeding threshold amount")
@@ -56,7 +59,7 @@ async def login(authRequest: AuthRequest, request: Request):
     # If existing user
     else:
         user = users[authRequest.id]
-        if user.check_password(pwd_hash):
+        if user.check_password(authRequest.password, pepper):
             jwt = hash_user(authRequest.id, authRequest.password)
             user.new_client(jwt, authRequest.server, authRequest.actions)
             logActivity(f"User with id: {authRequest.id} logged in")
@@ -123,7 +126,7 @@ async def decrease(changeRequest: ChangeRequest, request: Request):
 
 @app.post("/logout", status_code=200)
 @limiter.limit("10/second")
-async def logout(id: int, jwt: str, request: Request):
+async def logout(id: str, jwt: str, request: Request):
     if id not in users:
         logActivity(f"User id: {id} not found to logout")
         raise HTTPException(status_code=404, detail='User not found')
@@ -145,13 +148,13 @@ def test_IP(request: Request):
 
 def hash_user(id: int, password: str) -> str:
     encoding = (str(id) + password + str(time.time())).encode()
-    hashed = hashlib.sha3_512(encoding).hexdigest()
+    hashed = pwd_context.hash(encoding)
     return hashed
 
-
-def hash_password(password: str):
+def hash_password(password: str, salt):
     encoding = password.encode()
-    pwd_hash = hashlib.sha3_512(encoding).hexdigest()
+    pepperedPassword = hmac.new(pepper.encode(), encoding, hashlib.sha256).hexdigest()
+    pwd_hash = bcrypt.hashpw(pepperedPassword.encode(), salt)
     return pwd_hash
 
 def logActivity(message: str):
@@ -161,4 +164,6 @@ def logActivity(message: str):
 
 if __name__ == '__main__':
     users = {}
+    pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+    pepper = "breakitifyoucan"
     uvicorn.run(app, host="0.0.0.0", port=8000)

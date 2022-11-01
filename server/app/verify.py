@@ -14,7 +14,6 @@ def valid_id(id: str) -> bool:
         return False
     regex = re.compile(r"[a-zA-Z0-9]+")
     match = regex.fullmatch(str(id))
-    print(match)
     return bool(match)
 
 
@@ -33,6 +32,7 @@ def valid_actions(actions) -> bool:
 
 def valid_delay(delay) -> bool:
     delay_threshold = 120
+
     if not (0 <= int(delay) <= delay_threshold):
         return False
     return True
