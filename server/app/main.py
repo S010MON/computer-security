@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import FastAPI, HTTPException, Request
 import uvicorn
 import time
@@ -17,6 +19,7 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 @app.get("/", status_code=418)
 @limiter.limit("10/second")
 async def root(request: Request):
+    logActivity("I am a teapot")
     return {"message": "I am a teapot"}
 
 
@@ -43,6 +46,7 @@ async def login(authRequest: AuthRequest, request: Request):
         jwt = hash_user(authRequest.id, authRequest.password)
         user = User(authRequest.id, pwd_hash, jwt, authRequest.server, authRequest.actions)
         users[authRequest.id] = user
+        logActivity(f"New user created with id: {authRequest.id}")
         return {'jwt': jwt}
 
     # If existing user
@@ -51,12 +55,15 @@ async def login(authRequest: AuthRequest, request: Request):
         if user.check_password(pwd_hash):
             jwt = hash_user(authRequest.id, authRequest.password)
             user.new_client(jwt, authRequest.server, authRequest.actions)
+            logActivity(f"User with id: {authRequest.id} logged in")
             return {'jwt': jwt}
 
         # If user is not authorised
         user.failed_auth()
         if user.locked():
+            logActivity(f"User not authorized. Account locked for {user.lock_time} minutes")
             raise HTTPException(status_code=401, detail=f"Account has been locked for {user.lock_time} mins")
+        logActivity(f"User with id: {authRequest.id} unauthorized")
         raise HTTPException(status_code=404, detail='User not found')
 
 
@@ -67,17 +74,21 @@ async def increase(changeRequest: ChangeRequest, request: Request):
     port = request.client.port
 
     if changeRequest.id not in users:
+        logActivity(f"Increase for user id: {changeRequest.id} not authorized")
         raise HTTPException(status_code=404, detail='Not found')
 
     user = users[changeRequest.id]
 
     if not user.verified(ip, port, changeRequest.jwt):
+        logActivity(f"Increase for user id: {changeRequest.id} not authorized")
         raise HTTPException(status_code=401, detail='Unauthorised')
 
     result = user.increase(changeRequest.amount, changeRequest.jwt)
     if not result:
+        logActivity(f"Increase for user id: {changeRequest.id} not authorized")
         raise HTTPException(status_code=401, detail='Unauthorised')
 
+    logActivity(f"User id: {user.id} counter INCREASED to: {user.counter}")
     return {'counter': user.counter}
 
 
@@ -88,17 +99,21 @@ async def decrease(changeRequest: ChangeRequest, request: Request):
     port = request.client.port
 
     if changeRequest.id not in users:
+        logActivity(f"Decrease for user id: {changeRequest.id} not authorized")
         raise HTTPException(status_code=404, detail='Not found')
 
     user = users[changeRequest.id]
 
     if not user.verified(ip, port, changeRequest.jwt):
+        logActivity(f"Decrease for user id: {changeRequest.id} not authorized")
         raise HTTPException(status_code=401, detail='Unauthorised')
 
     result = user.decrease(changeRequest.amount, changeRequest.jwt)
     if not result:
+        logActivity(f"Decrease for user id: {changeRequest.id} not authorized")
         raise HTTPException(status_code=401, detail='Unauthorised')
 
+    logActivity(f"User id: {user.id} counter DECREASED to: {user.counter}")
     return {'counter': user.counter}
 
 
@@ -106,12 +121,15 @@ async def decrease(changeRequest: ChangeRequest, request: Request):
 @limiter.limit("10/second")
 async def logout(id: int, jwt: str, request: Request):
     if id not in users:
+        logActivity(f"User id: {id} not found to logout")
         raise HTTPException(status_code=404, detail='User not found')
 
     user = users[id]
-    if user.jwt != jwt:
-        raise HTTPException(status_code=404, detail='User not found')
+    if len(user.clients) > 1:
+        logActivity(f"User id: {id} failed logout. Logged in at another location")
+        raise HTTPException(status_code=401, detail='Logged in, in another location')
 
+    logActivity(f"User: {id} logged out")
     users.pop(id)
 
 
@@ -131,6 +149,10 @@ def hash_password(password: str):
     encoding = password.encode()
     pwd_hash = hashlib.sha3_512(encoding).hexdigest()
     return pwd_hash
+
+def logActivity(message: str):
+    logging.basicConfig(filename='history.log', encoding='utf-8', level=logging.INFO)
+    logging.info(message)
 
 
 if __name__ == '__main__':
