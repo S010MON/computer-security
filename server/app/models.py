@@ -40,7 +40,7 @@ class Client:
 
 class User:
 
-    def __init__(self, id: int, pwd_hash: str, jwt: str, server: Server, actions: Actions):
+    def __init__(self, id: str, pwd_hash: str, jwt: str, server: Server, actions: Actions):
         self.id = id
         self.pwd_hash = pwd_hash
         self.pwd_attempts = 0
