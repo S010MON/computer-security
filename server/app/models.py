@@ -21,7 +21,7 @@ class AuthRequest(BaseModel):
 
 
 class ChangeRequest(BaseModel):
-    id: int
+    id: str
     jwt: str
     amount: int
 

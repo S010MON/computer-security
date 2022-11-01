@@ -30,17 +30,21 @@ async def login(authRequest: AuthRequest, request: Request):
     pwd_hash = hash_password(authRequest.password)
 
     if not valid_actions(authRequest.actions):
+        logActivity(f"User id: {authRequest.id} attempted actions exceeding threshold amount")
         raise HTTPException(status_code=403, detail='Change threshold breached')
 
     if not valid_delay(authRequest.actions.delay):
+        logActivity(f"User id: {authRequest.id} set delay exceeding threshold value")
         raise HTTPException(status_code=403, detail='Delay threshold breached')
 
     # If a new user
     if authRequest.id not in users:
         if not valid_id(authRequest.id):
+            logActivity(f"Invalid id: {authRequest.id}")
             raise HTTPException(status_code=403, detail="Invalid ID: must be combination of numbers and letters only")
 
         if not valid_pwd(authRequest.password):
+            logActivity(f"Password rejected for id: {authRequest.id}. Not strong enough")
             raise HTTPException(status_code=403, detail="Password not secure enough, commonly used")
 
         jwt = hash_user(authRequest.id, authRequest.password)
