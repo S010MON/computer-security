@@ -1,134 +1,16 @@
 from fastapi import FastAPI, HTTPException, Request
-from pydantic import BaseModel
-import logging
 import uvicorn
 import time
 import hashlib
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
-
-
-class Server(BaseModel):
-    ip: str
-    port: int
-
-
-class Actions(BaseModel):
-    delay: int
-    steps: list
-
-
-class AuthRequest(BaseModel):
-    id: int
-    password: str
-    server: Server
-    actions: Actions
-
-
-class ChangeRequest(BaseModel):
-    id: int
-    jwt: str
-    amount: int
-
-
-class Client:
-
-    def __init__(self, jwt: str, server: Server, actions: Actions) -> None:
-        self.jwt = jwt
-        self.server = server
-        self.actions = actions
-        self.actions.steps.reverse()
-        self.timeout = time.time() + len(actions.steps) * actions.delay + 1
-
-
-class User:
-
-    def __init__(self, id: int, pwd_hash: str, jwt: str, server: Server, actions: Actions):
-        self.id = id
-        self.pwd_hash = pwd_hash
-        self.pwd_attempts = 0
-        self.unlock_time = time.time()
-        self.counter = 0
-        self.clients = {jwt:Client(jwt, server, actions)}
-
-    def verified(self, ip: str, port: int, jwt: str) -> bool:
-
-        if jwt not in self.clients:
-            return False
-        
-        client = self.clients[jwt]
-        
-        # if client.server.ip != ip:
-        #     return False
-
-        # if self.server.port != port:
-        #     return False
-
-        if client.jwt != jwt:
-            return False
-
-        if client.timeout <= time.time():
-            return False
-
-        return True
-    
-    def new_client(self, jwt: str, server: Server, actions: Actions):
-        self.clients[jwt] = Client(jwt, server, actions)
-
-    def increase(self, amount: int, jwt: str) -> bool:
-        
-        client = self.clients[jwt]
-
-        if len(client.actions.steps) == 0:
-            return False
-
-        top_element = str(client.actions.steps.pop())
-        action = top_element.split(" ")
-
-        if action[0] != "INCREASE" or int(action[1]) != amount:
-            client.actions.steps.append(top_element)
-            return False
-
-        self.counter += amount
-        logging.basicConfig(filename='log')
-        logging.info(f"{self.id} - increased by: {amount} to {self.counter}")
-        return True
-
-    def decrease(self, amount: int, jwt: str):
-
-        client = self.clients[jwt]
-
-        if len(client.actions.steps) == 0:
-            return False
-
-        top_element = str(client.actions.steps.pop())
-        action = top_element.split(" ")
-
-        if action[0] != "DECREASE" or int(action[1]) != amount:
-            client.actions.steps.append(top_element)
-            return False
-
-        self.counter -= amount
-        logging.basicConfig(filename='log')
-        logging.info(f"User{self.id} - decreased by: {amount} to {self.counter}")
-        return True
-
-
-    def failed_auth(self):
-        self.pwd_attempts += 1
-        if self.pwd_attempts > 3:
-            self.unlock_time = time.time() # TODO add wait time here
-
-    def not_locked(self):
-        return self.unlock_time < time.time()
+from app.models import ChangeRequest, AuthRequest, User
 
 limiter = Limiter(key_func=get_remote_address)
 app = FastAPI()
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
-
-users = {}
 
 
 @app.get("/", status_code=418)
@@ -141,32 +23,33 @@ async def root(request: Request):
 @limiter.limit("10/second")
 async def login(authRequest: AuthRequest, request: Request):
     print(authRequest)
-    print(type(authRequest))
-
     pwd_hash = hash_password(authRequest.password)
 
     # If a new user
-    if id not in users:
+    if authRequest.id not in users:
         jwt = hash_user(authRequest.id, authRequest.password)
         user = User(authRequest.id, pwd_hash, jwt, authRequest.server, authRequest.actions)
         users[authRequest.id] = user
         return {'jwt': jwt}
 
     # If existing user
-    elif users[authRequest.id].pwd_hash == pwd_hash and users[authRequest.id].not_locked():
-        jwt = hash_user(authRequest.id, authRequest.password)
-        users[authRequest.id].new_client(jwt, authRequest.server, authRequest.actions)
-        return {'jwt': jwt}
+    else:
+        user = users[authRequest.id]
+        if user.check_password(pwd_hash):
+            jwt = hash_user(authRequest.id, authRequest.password)
+            user.new_client(jwt, authRequest.server, authRequest.actions)
+            return {'jwt': jwt}
 
-    # If user is not authroised
-    users[authRequest.id].failed_auth()
-    raise HTTPException(status_code=404, detail='User not found')
+        # If user is not authorised
+        user.failed_auth()
+        if user.locked():
+            raise HTTPException(status_code=401, detail=f"Account has been locked for {user.lock_time} mins")
+        raise HTTPException(status_code=404, detail='User not found')
 
 
 @app.post("/increase", status_code=200)
 @limiter.limit("10/second")
 async def increase(changeRequest: ChangeRequest, request: Request):
-
     ip = request.client.host
     port = request.client.port
 
@@ -226,18 +109,17 @@ def test_IP(request: Request):
 
 
 def hash_user(id: int, password: str) -> str:
-
     encoding = (str(id) + password + str(time.time())).encode()
     hashed = hashlib.sha3_512(encoding).hexdigest()
     return hashed
 
 
 def hash_password(password: str):
-    
     encoding = password.encode()
     pwd_hash = hashlib.sha3_512(encoding).hexdigest()
     return pwd_hash
 
 
 if __name__ == '__main__':
+    users = {}
     uvicorn.run(app, host="0.0.0.0", port=8000)
