@@ -65,11 +65,13 @@ public class Client extends BorderPane
             {
                 controlPane.clearCounter();
                 timeline.stop();
+                controlPane.activate();
             }
         }
         catch(Exception e)
         {
             timeline.stop();
+            controlPane.activate();
         }
     }
 }

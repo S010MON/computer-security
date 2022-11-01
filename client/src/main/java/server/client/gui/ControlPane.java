@@ -93,15 +93,8 @@ public class ControlPane extends GridPane
         counterAmount.setText(" ");
     }
 
-    public void setSubmitInactive()
+    public void activate()
     {
-        submitBtn.setDisable(true);
-        active = false;
-    }
-
-    public void setSubmitActive()
-    {
-        submitBtn.setDisable(false);
         active = true;
     }
 
