@@ -1,4 +1,5 @@
 import hashlib
+import hmac
 import logging
 
 from fastapi import FastAPI, HTTPException, Request
@@ -58,7 +59,7 @@ async def login(authRequest: AuthRequest, request: Request):
     # If existing user
     else:
         user = users[authRequest.id]
-        if user.check_password(authRequest.password):
+        if user.check_password(authRequest.password, pepper):
             jwt = hash_user(authRequest.id, authRequest.password)
             user.new_client(jwt, authRequest.server, authRequest.actions)
             logActivity(f"User with id: {authRequest.id} logged in")
@@ -147,12 +148,13 @@ def test_IP(request: Request):
 
 def hash_user(id: int, password: str) -> str:
     encoding = (str(id) + password + str(time.time())).encode()
-    hashed = hashlib.sha3_512(encoding).hexdigest()
+    hashed = pwd_context.hash(encoding)
     return hashed
 
 def hash_password(password: str, salt):
     encoding = password.encode()
-    pwd_hash = bcrypt.hashpw(encoding, salt)
+    pepperedPassword = hmac.new(pepper.encode(), encoding, hashlib.sha256).hexdigest()
+    pwd_hash = bcrypt.hashpw(pepperedPassword.encode(), salt)
     return pwd_hash
 
 def logActivity(message: str):
@@ -163,4 +165,5 @@ def logActivity(message: str):
 if __name__ == '__main__':
     users = {}
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+    pepper = "breakitifyoucan"
     uvicorn.run(app, host="0.0.0.0", port=8000)
