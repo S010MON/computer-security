@@ -6,6 +6,7 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from app.models import ChangeRequest, AuthRequest, User
+from app.verfiy import valid_id, valid_pwd
 
 limiter = Limiter(key_func=get_remote_address)
 app = FastAPI()
@@ -27,6 +28,9 @@ async def login(authRequest: AuthRequest, request: Request):
 
     # If a new user
     if authRequest.id not in users:
+        if not valid_pwd(authRequest.password):
+            raise HTTPException(status_code=403, detail="Password not secure enough, commonly used")
+
         jwt = hash_user(authRequest.id, authRequest.password)
         user = User(authRequest.id, pwd_hash, jwt, authRequest.server, authRequest.actions)
         users[authRequest.id] = user
