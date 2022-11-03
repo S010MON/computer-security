@@ -1,3 +1,4 @@
+import base64
 import hashlib
 import hmac
 import logging
@@ -184,11 +185,17 @@ def logActivity(message: str):
     logging.basicConfig(filename='history.log', encoding='utf-8', level=logging.INFO)
     logging.info(message)
 
-
 def decrypt(message):
+    print(len(message))
+    print(private_key.key_size)
+    print(message)
     return private_key.decrypt(
-        message,
-        padding=None
+        base64.b64decode(message),
+        padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None
+        )
     ).decode("utf-8")
 
 
@@ -196,7 +203,11 @@ def encrypt(message):
     message = str.encode(message)
     encrypted_message = public_key.encrypt(
         message,
-        padding=None
+        padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None
+        )
     )
     return encrypted_message
 
@@ -205,6 +216,8 @@ if __name__ == '__main__':
     users = {}
     private_key = get_private_key()
     public_key = get_public_key()
+    print(public_key)
+    print("Public key length: ", public_key.key_size)
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
     pepper = "breakitifyoucan"
     uvicorn.run(app, host="0.0.0.0", port=8000)

@@ -181,6 +181,7 @@ public class Session
     private void generateServerPublicKey() throws Exception
     {
         String publicKeyString = serverPublicKeyRequest();
+        System.out.println(publicKeyString.length());
         generateServerPublicKeyObject(publicKeyString);
     }
 
@@ -192,7 +193,7 @@ public class Session
 
 
         // Create Instance of Cipher and encode input using key
-        Cipher cipher = Cipher.getInstance("RSA");
+        Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWITHSHA-256ANDMGF1PADDING");
         cipher.init(Cipher.ENCRYPT_MODE, serverPublicKey);
         byte[] encrypted = cipher.doFinal(input);
 
