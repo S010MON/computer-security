@@ -4,23 +4,28 @@ import lombok.Getter;
 import lombok.Setter;
 import server.client.gui.Direction;
 
+import javax.crypto.Cipher;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.KeyFactory;
+import java.security.PublicKey;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
 
 public class Session
 {
-    private final String url = "https://cs-server-1.herokuapp.com/";
+    private final String url = "http://0.0.0.0:8000/";
     private URL baseUrl;
     private String jwt = "";
     private HttpURLConnection conn;
-    @Getter private int id;
+    @Getter private String id;
     @Setter private String ip;
     @Setter private int port;
     @Getter private int counter;
-
+    private PublicKey serverPublicKey;
 
     public Session() throws Exception
     {
@@ -28,6 +33,7 @@ public class Session
         ip = "\"" + baseUrl.getHost() + "\"";
         port = baseUrl.getPort();
 
+        generateServerPublicKey();
         conn = (HttpURLConnection) this.baseUrl.openConnection();
     }
 
@@ -51,7 +57,7 @@ public class Session
         return conn.getResponseCode();
     }
 
-    public int postAuthRequest(int id, String password, int delay, String steps) throws Exception
+    public int postAuthRequest(String id, String password, int delay, String steps) throws Exception
     {
         URL url = new URL(baseUrl.toString() + "auth");
         this.id = id;
@@ -66,9 +72,15 @@ public class Session
         conn.setDoOutput(true);
 
         //Write JSON string to output stream as bytes
-        String jsonBodyString = formatAuthRequestBody(id, password, delay, steps);
+        //Encrypt relevant information
+        String encryptedJsonBodyString = formatAuthRequestBody(encrypt(id),
+                encrypt(password),
+                delay,
+                steps);
+        System.out.println("Auth request: " + encryptedJsonBodyString);
+
         OutputStream os = conn.getOutputStream();
-        byte[] input = jsonBodyString.getBytes("utf-8");
+        byte[] input = encryptedJsonBodyString.getBytes("utf-8");
         os.write(input, 0, input.length);
 
         //Read jwt if successful
@@ -81,7 +93,7 @@ public class Session
         return conn.getResponseCode();
     }
 
-    public int postChangeRequest(Direction direction, int id, int amount) throws Exception
+    public int postChangeRequest(Direction direction, String id, int amount) throws Exception
     {
         String path = changeRequestPath(direction.toString());
 
@@ -97,9 +109,13 @@ public class Session
         conn.setDoOutput(true);
 
         //Write JSON string to output stream as bytes
-        String jsonBodyString = RequestBody.formatChangeRequest(id, jwt,  amount);
+        String encryptedJsonBodyString = RequestBody.formatChangeRequest(encrypt(id),
+                encrypt(jwt),
+                amount);
+        System.out.println("Change request: " + encryptedJsonBodyString);
+
         OutputStream os = conn.getOutputStream();
-        byte[] input = jsonBodyString.getBytes("utf-8");
+        byte[] input = encryptedJsonBodyString.getBytes("utf-8");
         os.write(input, 0, input.length);
 
         if (conn.getResponseCode() == 200)
@@ -111,7 +127,7 @@ public class Session
         return conn.getResponseCode();
     }
 
-    public String formatAuthRequestBody(int id, String password, int delay, String steps)
+    public String formatAuthRequestBody(String id, String password, int delay, String steps)
     {
         return RequestBody.formatAuthRequest(id,
                 password,
@@ -162,21 +178,56 @@ public class Session
         }
     }
 
-    public String getPublicKeyRequest() throws Exception
+    private void generateServerPublicKey() throws Exception
+    {
+        String publicKeyString = serverPublicKeyRequest();
+        generateServerPublicKeyObject(publicKeyString);
+    }
+
+    // Encrypt any string using a key
+    private String encrypt(String inputString) throws Exception
+    {
+        // Turn key and input to byte arrays
+        byte[] input = inputString.getBytes();
+
+
+        // Create Instance of Cipher and encode input using key
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.ENCRYPT_MODE, serverPublicKey);
+        byte[] encrypted = cipher.doFinal(input);
+
+        // Get encrypted string
+        return new String(Base64.getEncoder().encode(encrypted));
+    }
+    private String serverPublicKeyRequest() throws Exception
     {
         URL url = new URL(baseUrl.toString() + "public_key");
-        System.out.println(url);
         conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
         conn.connect();
 
         //Get the public key
-        String public_key = jwtParser(getResponseBody());
+        String public_key = publicKeyParser(getResponseBody());
 
         //Safety
         conn.disconnect();
 
         return public_key;
+    }
+    private String publicKeyParser(String responseMessage)
+    {
+        int jsonIndexStartSeparator = responseMessage.indexOf(":\"") + 2;
+        int jsonIndexEndSeparator = responseMessage.indexOf("\"}");
+        String publicKey = responseMessage.substring(jsonIndexStartSeparator, jsonIndexEndSeparator);
+        return publicKey;
+    }
+
+    private void generateServerPublicKeyObject(String publicKeyString) throws Exception
+    {
+        byte[] key = publicKeyString.getBytes();
+        X509EncodedKeySpec keySpec = new X509EncodedKeySpec(Base64.getDecoder().decode(key));
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        serverPublicKey = keyFactory.generatePublic(keySpec);
     }
 }
 

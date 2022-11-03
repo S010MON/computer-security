@@ -9,11 +9,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 //Please note the Fast API must be active for tests to successfully run
 
-//TODO IP Check
 public class RequestsTest
 {
     // PYCHARM
-//    String url = "http://127.0.0.1:8000/";
+    String url = "http://127.0.0.1:8000/";
     String ip = "127.0.0.1";
 
     // Docker
@@ -21,7 +20,7 @@ public class RequestsTest
 //    String ip = "0.0.0.0";
 
     // Deployed
-    String url = "https://cs-server-1.herokuapp.com/";
+    //String url = "https://cs-server-1.herokuapp.com/";
 
     int port = 8000;
 
@@ -43,7 +42,7 @@ public class RequestsTest
     @Test
     void testAuthQueryFormat()
     {
-        int id = 1;
+        String id = "1";
         String password = "pass";
         int delay = 100;
         String steps = "[\"INCREASE 1\"" + ", " + "\"INCREASE 1\"]";
@@ -68,7 +67,7 @@ public class RequestsTest
     @Test
     void testAuthPostRequest()
     {
-        int id = 1;
+        String id = "1";
         String password = "pass";
         int delay = 100;
         String steps = "[\"INCREASE 1\"" + ", " + "\"INCREASE 1\"]";
@@ -89,7 +88,7 @@ public class RequestsTest
     @Test
     void post_decrease()
     {
-        int id = 2;
+        String id = "2";
         String password = "pass";
         int delay = 100;
         String steps = "[\"DECREASE 1\"" + ", " + "\"DECREASE 1\"]";
@@ -120,7 +119,7 @@ public class RequestsTest
     @Test
     void post_increase()
     {
-        int id = 3;
+        String id = "3";
         String password = "pass";
         int delay = 100;
         String steps = "[\"INCREASE 1\"" + ", " + "\"INCREASE 1\"]";
