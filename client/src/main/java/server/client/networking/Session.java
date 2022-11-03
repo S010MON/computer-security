@@ -161,6 +161,23 @@ public class Session
                 return "";
         }
     }
+
+    public String getPublicKeyRequest() throws Exception
+    {
+        URL url = new URL(baseUrl.toString() + "public_key");
+        System.out.println(url);
+        conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+        conn.connect();
+
+        //Get the public key
+        String public_key = jwtParser(getResponseBody());
+
+        //Safety
+        conn.disconnect();
+
+        return public_key;
+    }
 }
 
 
