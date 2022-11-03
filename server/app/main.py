@@ -48,6 +48,9 @@ async def public_key(request: Request):
 @limiter.limit("10/second")
 async def login(authRequest: AuthRequest, request: Request):
     print(authRequest)
+    usernameDecrypted = decrypt(authRequest.id)
+    print(usernameDecrypted)
+
     pwd_hash = hash_password(authRequest.password, bcrypt.gensalt())
 
     if not valid_actions(authRequest.actions):
@@ -185,11 +188,7 @@ def logActivity(message: str):
 def decrypt(message):
     return private_key.decrypt(
         message,
-        padding.OAEP(
-            mgf=padding.MGF1(algorithm=hashes.SHA256()),
-            algorithm=hashes.SHA256(),
-            label=None
-        )
+        padding=None
     ).decode("utf-8")
 
 
@@ -197,11 +196,7 @@ def encrypt(message):
     message = str.encode(message)
     encrypted_message = public_key.encrypt(
         message,
-        padding.OAEP(
-            mgf=padding.MGF1(algorithm=hashes.SHA256()),
-            algorithm=hashes.SHA256(),
-            label=None
-        )
+        padding=None
     )
     return encrypted_message
 
