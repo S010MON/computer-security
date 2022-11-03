@@ -35,7 +35,13 @@ async def public_key(request: Request):
         encoding=serialization.Encoding.PEM,
         format=serialization.PublicFormat.SubjectPublicKeyInfo
     )
-    return {key}
+    key = str(key)
+    key = key.replace("-----BEGIN PUBLIC KEY-----", "")\
+        .replace("-----END PUBLIC KEY-----", "")\
+        .replace("\\n", "")\
+        .replace("b'", "")\
+        .replace("'", "")
+    return {"public_key": key}
 
 
 @app.post("/auth", status_code=201)
