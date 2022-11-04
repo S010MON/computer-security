@@ -197,6 +197,13 @@ public class Session
         cipher.init(Cipher.ENCRYPT_MODE, serverPublicKey);
         byte[] encrypted = cipher.doFinal(input);
 
+        System.out.println("\n\n");
+        for(int i = 0; i < encrypted.length; i ++)
+        {
+            System.out.print(encrypted);
+        }
+        System.out.println("\n\n");
+
         // Get encrypted string
         String cypherText = new String(Base64.getEncoder().encode(encrypted));
         System.out.println(cypherText);
