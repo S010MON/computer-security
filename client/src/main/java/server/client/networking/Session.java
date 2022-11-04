@@ -187,7 +187,7 @@ public class Session
     }
 
     // Encrypt any string using a key
-    private String encrypt(String inputString) throws Exception
+    public String encrypt(String inputString) throws Exception
     {
         // Turn key and input to byte arrays
         byte[] input = inputString.getBytes();
@@ -195,20 +195,19 @@ public class Session
         // Create Instance of Cipher and encode input using key
         Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWITHSHA-256ANDMGF1PADDING");
         cipher.init(Cipher.ENCRYPT_MODE, serverPublicKey);
-        String encrypted  = new String(cipher.doFinal(input), "UTF-8");
-        System.out.println(encrypted);
+        byte[] encrypted = cipher.doFinal(input);
 
         System.out.println("\n\n");
-//        for(int i = 0; i < encrypted.length; i ++)
-//        {
-//            System.out.print(encrypted[i]);
-//        }
-//        System.out.println("\n\n");
+        for(int i = 0; i < encrypted.length; i ++)
+        {
+            System.out.print(encrypted[i]);
+        }
+        System.out.println("\n\n");
 
         // Get encrypted string
-//        String cypherText = new String(Base64.getEncoder().encode(encrypted));
-//        System.out.println(cypherText);
-        return encrypted;
+        String cypherText = new String(Base64.getEncoder().encode(encrypted));
+        System.out.println(cypherText);
+        return cypherText;
     }
     private String serverPublicKeyRequest() throws Exception
     {
