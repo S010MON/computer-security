@@ -34,7 +34,6 @@ public class Session
         ip = "\"" + baseUrl.getHost() + "\"";
         port = baseUrl.getPort();
 
-        generateServerPublicKey();
         conn = (HttpURLConnection) this.baseUrl.openConnection();
     }
 
@@ -73,15 +72,15 @@ public class Session
         conn.setDoOutput(true);
 
         //Write JSON string to output stream as bytes
-        //Encrypt relevant information
-        String encryptedJsonBodyString = formatAuthRequestBody(encrypt(id),
-                encrypt(password),
+        String jsonBodyString = formatAuthRequestBody(
+                id,
+                password,
                 delay,
                 steps);
-        System.out.println("Auth request: " + encryptedJsonBodyString);
+        System.out.println("Auth request: " + jsonBodyString);
 
         OutputStream os = conn.getOutputStream();
-        byte[] input = encryptedJsonBodyString.getBytes("utf-8");
+        byte[] input = jsonBodyString.getBytes("utf-8");
         os.write(input, 0, input.length);
 
         //Read jwt if successful
@@ -110,13 +109,14 @@ public class Session
         conn.setDoOutput(true);
 
         //Write JSON string to output stream as bytes
-        String encryptedJsonBodyString = RequestBody.formatChangeRequest(encrypt(id),
-                encrypt(jwt),
+        String jsonBodyString = RequestBody.formatChangeRequest(
+                id,
+                jwt,
                 amount);
-        System.out.println("Change request: " + encryptedJsonBodyString);
+        System.out.println("Change request: " + jsonBodyString);
 
         OutputStream os = conn.getOutputStream();
-        byte[] input = encryptedJsonBodyString.getBytes("utf-8");
+        byte[] input = jsonBodyString.getBytes("utf-8");
         os.write(input, 0, input.length);
 
         if (conn.getResponseCode() == 200)
@@ -186,7 +186,7 @@ public class Session
         generateServerPublicKeyObject(publicKeyString);
     }
 
-    // Encrypt any string using a key
+    // Encrypt any string using the server public key
     public String encrypt(String inputString) throws Exception
     {
         // Turn key and input to byte arrays
