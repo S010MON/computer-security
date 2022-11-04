@@ -13,7 +13,7 @@ public class RequestBody
 
     public static String formatChangeRequest(String id, String jwt, int amount)
     {
-        String idInfo = "{\"id\": " + id + ", ";
+        String idInfo = "{\"id\": " +  "\"" + id + "\"" + ", ";
         String jwtInfo = "\"jwt\": \"" + jwt + "\", ";
         String amountInfo = "\"amount\": " + amount + "}";
         return idInfo + jwtInfo + amountInfo;
