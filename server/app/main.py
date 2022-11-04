@@ -49,10 +49,6 @@ async def public_key(request: Request):
 @app.post("/auth", status_code=201)
 @limiter.limit("10/second")
 async def login(authRequest: AuthRequest, request: Request):
-    print(authRequest)
-    usernameDecrypted = decrypt(authRequest.id)
-    print(usernameDecrypted)
-
     pwd_hash = hash_password(authRequest.password, bcrypt.gensalt())
 
     if not valid_actions(authRequest.actions):
@@ -221,8 +217,5 @@ if __name__ == '__main__':
     public_key = private_key.public_key()
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
     pepper = "breakitifyoucan"
-
-    print(encrypt("thisisasecrectmessage"))
-    print(decrypt(encrypt("thisisasecrectmessage")))
 
     uvicorn.run(app, host="0.0.0.0", port=8000)

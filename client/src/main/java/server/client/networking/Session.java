@@ -77,6 +77,7 @@ public class Session
                 password,
                 delay,
                 steps);
+        System.out.println(jsonBodyString);
 
         OutputStream os = conn.getOutputStream();
         byte[] input = jsonBodyString.getBytes("utf-8");
@@ -112,6 +113,7 @@ public class Session
                 id,
                 jwt,
                 amount);
+        System.out.println(jsonBodyString);
 
         OutputStream os = conn.getOutputStream();
         byte[] input = jsonBodyString.getBytes("utf-8");
