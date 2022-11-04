@@ -31,7 +31,7 @@ async def root(request: Request):
 @app.get("/public_key", status_code=200)
 @limiter.limit("10/second")
 async def public_key(request: Request):
-    return public_key.public_bytes(
+    key = public_key.public_bytes(
         encoding=serialization.Encoding.PEM,
         format=serialization.PublicFormat.SubjectPublicKeyInfo
     )
@@ -42,6 +42,7 @@ async def public_key(request: Request):
         .replace("\\n", "")\
         .replace("b'", "")\
         .replace("'", "")
+
     return {"public_key": key}
 
 
