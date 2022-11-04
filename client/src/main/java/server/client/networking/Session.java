@@ -200,7 +200,7 @@ public class Session
         System.out.println("\n\n");
         for(int i = 0; i < encrypted.length; i ++)
         {
-            System.out.print(encrypted);
+            System.out.print(encrypted[i]);
         }
         System.out.println("\n\n");
 
