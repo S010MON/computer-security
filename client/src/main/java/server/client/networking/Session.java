@@ -77,7 +77,6 @@ public class Session
                 password,
                 delay,
                 steps);
-        System.out.println("Auth request: " + jsonBodyString);
 
         OutputStream os = conn.getOutputStream();
         byte[] input = jsonBodyString.getBytes("utf-8");
@@ -113,7 +112,6 @@ public class Session
                 id,
                 jwt,
                 amount);
-        System.out.println("Change request: " + jsonBodyString);
 
         OutputStream os = conn.getOutputStream();
         byte[] input = jsonBodyString.getBytes("utf-8");
@@ -182,7 +180,6 @@ public class Session
     private void generateServerPublicKey() throws Exception
     {
         String publicKeyString = serverPublicKeyRequest();
-        System.out.println(publicKeyString.length());
         generateServerPublicKeyObject(publicKeyString);
     }
 
@@ -197,16 +194,8 @@ public class Session
         cipher.init(Cipher.ENCRYPT_MODE, serverPublicKey);
         byte[] encrypted = cipher.doFinal(input);
 
-        System.out.println("\n\n");
-        for(int i = 0; i < encrypted.length; i ++)
-        {
-            System.out.print(encrypted[i]);
-        }
-        System.out.println("\n\n");
-
         // Get encrypted string
         String cypherText = new String(Base64.getEncoder().encode(encrypted));
-        System.out.println(cypherText);
         return cypherText;
     }
     private String serverPublicKeyRequest() throws Exception
@@ -226,7 +215,6 @@ public class Session
     }
     private String publicKeyParser(String responseMessage)
     {
-        System.out.println(responseMessage);
         int jsonIndexStartSeparator = responseMessage.indexOf(":\"") + 2;
         int jsonIndexEndSeparator = responseMessage.indexOf("\"}");
         String publicKey = responseMessage.substring(jsonIndexStartSeparator, jsonIndexEndSeparator);
