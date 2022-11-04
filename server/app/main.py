@@ -1,18 +1,17 @@
-import base64
 import hashlib
 import hmac
 import logging
 import uvicorn
 import time
 import bcrypt
+from cryptography.hazmat.backends import default_backend
 from fastapi import FastAPI, HTTPException, Request
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from app.models import ChangeRequest, AuthRequest, User
 from app.verify import valid_id, valid_pwd, valid_delay, valid_actions
-from app.encryption import get_private_key, get_public_key
-from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives.asymmetric import padding, rsa
 from cryptography.hazmat.primitives import hashes, serialization
 from passlib.context import CryptContext
 
@@ -32,10 +31,11 @@ async def root(request: Request):
 @app.get("/public_key", status_code=200)
 @limiter.limit("10/second")
 async def public_key(request: Request):
-    key = public_key.public_bytes(
+    return public_key.public_bytes(
         encoding=serialization.Encoding.PEM,
         format=serialization.PublicFormat.SubjectPublicKeyInfo
     )
+
     key = str(key)
     key = key.replace("-----BEGIN PUBLIC KEY-----", "")\
         .replace("-----END PUBLIC KEY-----", "")\
@@ -185,12 +185,10 @@ def logActivity(message: str):
     logging.basicConfig(filename='history.log', encoding='utf-8', level=logging.INFO)
     logging.info(message)
 
+
 def decrypt(message):
-    print(len(message))
-    print(private_key.key_size)
-    print(message)
     return private_key.decrypt(
-        base64.b64decode(message),
+        message,
         padding.OAEP(
             mgf=padding.MGF1(algorithm=hashes.SHA256()),
             algorithm=hashes.SHA256(),
@@ -214,10 +212,16 @@ def encrypt(message):
 
 if __name__ == '__main__':
     users = {}
-    private_key = get_private_key()
-    public_key = get_public_key()
-    print(public_key)
-    print("Public key length: ", public_key.key_size)
+    private_key = rsa.generate_private_key(
+        public_exponent=65537,
+        key_size=2048,
+        backend=default_backend()
+    )
+    public_key = private_key.public_key()
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
     pepper = "breakitifyoucan"
+
+    print(encrypt("thisisasecrectmessage"))
+    print(decrypt(encrypt("thisisasecrectmessage")))
+
     uvicorn.run(app, host="0.0.0.0", port=8000)
