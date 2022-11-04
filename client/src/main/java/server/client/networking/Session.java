@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.PublicKey;
 import java.security.spec.X509EncodedKeySpec;
@@ -190,14 +191,15 @@ public class Session
         // Turn key and input to byte arrays
         byte[] input = inputString.getBytes();
 
-
         // Create Instance of Cipher and encode input using key
         Cipher cipher = Cipher.getInstance("RSA");
         cipher.init(Cipher.ENCRYPT_MODE, serverPublicKey);
         byte[] encrypted = cipher.doFinal(input);
 
         // Get encrypted string
-        return new String(Base64.getEncoder().encode(encrypted));
+        String cypherText = new String(Base64.getEncoder().encode(encrypted));
+        System.out.println(cypherText);
+        return cypherText;
     }
     private String serverPublicKeyRequest() throws Exception
     {
