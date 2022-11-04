@@ -219,6 +219,7 @@ public class Session
     }
     private String publicKeyParser(String responseMessage)
     {
+        System.out.println(responseMessage);
         int jsonIndexStartSeparator = responseMessage.indexOf(":\"") + 2;
         int jsonIndexEndSeparator = responseMessage.indexOf("\"}");
         String publicKey = responseMessage.substring(jsonIndexStartSeparator, jsonIndexEndSeparator);
