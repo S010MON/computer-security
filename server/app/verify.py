@@ -1,7 +1,7 @@
 import re
 
 common_passwords = set()
-with open("common_passwords.txt") as file:
+with open("server/app/common_passwords.txt") as file:
     data = file.readlines()
     for d in data:
         common_passwords.add(d.strip())

@@ -33,6 +33,7 @@ public class Session
         baseUrl = new URL(url);
         ip = "\"" + baseUrl.getHost() + "\"";
         port = baseUrl.getPort();
+        generateServerPublicKey();
 
         conn = (HttpURLConnection) this.baseUrl.openConnection();
     }
@@ -42,6 +43,7 @@ public class Session
         baseUrl = new URL(url);
         ip = "\"" + baseUrl.getHost() + "\"";
         port = baseUrl.getPort();
+        generateServerPublicKey();
 
         conn = (HttpURLConnection) this.baseUrl.openConnection();
     }
@@ -73,8 +75,8 @@ public class Session
 
         //Write JSON string to output stream as bytes
         String jsonBodyString = formatAuthRequestBody(
-                id,
-                password,
+                encrypt(id),
+                encrypt(password),
                 delay,
                 steps);
         System.out.println(jsonBodyString);
@@ -89,7 +91,7 @@ public class Session
 
         //Safety
         conn.disconnect();
-
+        System.out.println(conn.getResponseMessage());
         return conn.getResponseCode();
     }
 
@@ -192,13 +194,11 @@ public class Session
         byte[] input = inputString.getBytes();
 
         // Create Instance of Cipher and encode input using key
-        Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWITHSHA-256ANDMGF1PADDING");
+        Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
         cipher.init(Cipher.ENCRYPT_MODE, serverPublicKey);
         byte[] encrypted = cipher.doFinal(input);
 
-        // Get encrypted string
-        String cypherText = new String(Base64.getEncoder().encode(encrypted));
-        return cypherText;
+        return new String(Base64.getEncoder().encode(encrypted));
     }
     private String serverPublicKeyRequest() throws Exception
     {
