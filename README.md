@@ -13,7 +13,7 @@ There are 4 request URLs:
 Query:
 ```json
 {
-  "id": 1,
+  "id": "username",
   "password": "pass",
   "server": {
      "ip": "127.0.0.1",
@@ -40,7 +40,7 @@ Response:
 Query:
 ```json
 {
-  "id": 1,
+  "id": "username",
   "jwt": "1pass",
   "amount": 1
 }
@@ -58,7 +58,7 @@ Response:
 Query:
 ```json
 {
-  "id": 1,
+  "id": "username",
   "jwt": "1pass",
   "amount": 1
 }
@@ -76,7 +76,7 @@ Response:
 Query:
 ```json
 {
-  "id": 1,
+  "id": "username",
   "jwt": "1pass"
 }
 
@@ -84,6 +84,6 @@ Query:
 Response:
 ```json
 {
-  "id": 1
+  "id": "username"
 }
 ```
