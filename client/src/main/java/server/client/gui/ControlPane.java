@@ -11,7 +11,7 @@ public class ControlPane extends GridPane
 {
     ActionsPane actionsPane;
     TextField amountInput = new TextField();
-    TextField userIdInput = new TextField("1");
+    TextField userIdInput = new TextField("username");
     TextField passwordInput = new TextField("pass");
     Label counterAmount = new Label("");
     TextField delayInput = new TextField("1");
@@ -27,7 +27,7 @@ public class ControlPane extends GridPane
         setHgap(10);
         setVgap(10);
         
-        Label userIdLbl = new Label("User_ID(int):");
+        Label userIdLbl = new Label("User_ID:");
         add(userIdLbl, 0,0);
         add(userIdInput, 1,0);
 
@@ -101,7 +101,7 @@ public class ControlPane extends GridPane
     private void execute()
     {
         if(active)
-            client.execute(parseID(), passwordInput.getText(), actionsPane);
+            client.execute(userIdInput.getText(), passwordInput.getText(), actionsPane);
     }
 
     private int parseAmountInput()
@@ -109,18 +109,6 @@ public class ControlPane extends GridPane
         try
         {
             return Integer.parseInt(amountInput.getText());
-        }
-        catch(NumberFormatException e)
-        {
-            return 0;
-        }
-    }
-
-    private int parseID()
-    {
-        try
-        {
-            return Integer.parseInt(userIdInput.getText());
         }
         catch(NumberFormatException e)
         {

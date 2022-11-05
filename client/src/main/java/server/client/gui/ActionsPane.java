@@ -42,10 +42,10 @@ public class ActionsPane extends VBox
 
         StringBuilder sb = new StringBuilder();
         sb.append("[");
-        for(int i = 0; i < actions.size() -1; i++)
+        for(int i = 0; i <= actions.size() -1; i++)
         {
             sb.append(actions.get(i).toString());
-            if(i != (actions.size()-2))
+            if(i != (actions.size()-1))
                 sb.append(", ");
         }
         sb.append("]");

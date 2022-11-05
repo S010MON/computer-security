@@ -1,16 +1,18 @@
 import hashlib
 import hmac
 import logging
-
-from fastapi import FastAPI, HTTPException, Request
 import uvicorn
 import time
 import bcrypt
+from cryptography.hazmat.backends import default_backend
+from fastapi import FastAPI, HTTPException, Request
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from app.models import ChangeRequest, AuthRequest, User
 from app.verify import valid_id, valid_pwd, valid_delay, valid_actions
+from cryptography.hazmat.primitives.asymmetric import padding, rsa
+from cryptography.hazmat.primitives import hashes, serialization
 from passlib.context import CryptContext
 
 limiter = Limiter(key_func=get_remote_address)
@@ -26,10 +28,27 @@ async def root(request: Request):
     return {"message": "I am a teapot"}
 
 
+@app.get("/public_key", status_code=200)
+@limiter.limit("10/second")
+async def public_key(request: Request):
+    key = public_key.public_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PublicFormat.SubjectPublicKeyInfo
+    )
+
+    key = str(key)
+    key = key.replace("-----BEGIN PUBLIC KEY-----", "")\
+        .replace("-----END PUBLIC KEY-----", "")\
+        .replace("\\n", "")\
+        .replace("b'", "")\
+        .replace("'", "")
+
+    return {"public_key": key}
+
+
 @app.post("/auth", status_code=201)
 @limiter.limit("10/second")
 async def login(authRequest: AuthRequest, request: Request):
-    print(authRequest)
     pwd_hash = hash_password(authRequest.password, bcrypt.gensalt())
 
     if not valid_actions(authRequest.actions):
@@ -151,19 +170,52 @@ def hash_user(id: int, password: str) -> str:
     hashed = pwd_context.hash(encoding)
     return hashed
 
+
 def hash_password(password: str, salt):
     encoding = password.encode()
     pepperedPassword = hmac.new(pepper.encode(), encoding, hashlib.sha256).hexdigest()
     pwd_hash = bcrypt.hashpw(pepperedPassword.encode(), salt)
     return pwd_hash
 
+
 def logActivity(message: str):
     logging.basicConfig(filename='history.log', encoding='utf-8', level=logging.INFO)
     logging.info(message)
 
 
+def decrypt(message):
+    return private_key.decrypt(
+        message,
+        padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None
+        )
+    ).decode("utf-8")
+
+
+def encrypt(message):
+    message = str.encode(message)
+    encrypted_message = public_key.encrypt(
+        message,
+        padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None
+        )
+    )
+    return encrypted_message
+
+
 if __name__ == '__main__':
     users = {}
+    private_key = rsa.generate_private_key(
+        public_exponent=65537,
+        key_size=2048,
+        backend=default_backend()
+    )
+    public_key = private_key.public_key()
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
     pepper = "breakitifyoucan"
+
     uvicorn.run(app, host="0.0.0.0", port=8000)

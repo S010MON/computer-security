@@ -31,7 +31,7 @@ public class Client extends BorderPane
         session = null;
     }
 
-    public void execute(int id, String password, ActionsPane actions)
+    public void execute(String id, String password, ActionsPane actions)
     {
         try
         {
