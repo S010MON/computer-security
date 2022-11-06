@@ -177,17 +177,6 @@ def logActivity(message: str):
     logging.info(message)
 
 
-# def decrypt(message):
-#     return private_key.decrypt(
-#         message,
-#         padding.OAEP(
-#             mgf=padding.MGF1(algorithm=hashes.SHA256()),
-#             algorithm=hashes.SHA256(),
-#             label=None
-#         )
-#     ).decode("utf-8")
-
-
 def decrypt(encryption):
     key = open(path + "serverPrivateKey.pem").read()
     key = key.replace("-----BEGIN RSA PRIVATE KEY-----", "").replace("-----END RSA PRIVATE KEY-----", "").replace("\n", "")
