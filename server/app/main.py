@@ -15,6 +15,7 @@ from Crypto.Cipher import PKCS1_v1_5
 from base64 import b64decode
 from passlib.context import CryptContext
 
+path = 'server/app/'
 limiter = Limiter(key_func=get_remote_address)
 app = FastAPI()
 app.state.limiter = limiter
@@ -31,7 +32,7 @@ async def root(request: Request):
 @app.get("/public_key", status_code=200)
 @limiter.limit("10/second")
 async def give_public_key(request: Request):
-    key = open("server/app/serverPublicKey.pem").read()
+    key = open(path + "serverPublicKey.pem").read()
     key = key.replace("-----BEGIN PUBLIC KEY-----", "").replace("-----END PUBLIC KEY-----", "").replace("\n", "")
     return {"public_key": key}
 
@@ -176,19 +177,8 @@ def logActivity(message: str):
     logging.info(message)
 
 
-# def decrypt(message):
-#     return private_key.decrypt(
-#         message,
-#         padding.OAEP(
-#             mgf=padding.MGF1(algorithm=hashes.SHA256()),
-#             algorithm=hashes.SHA256(),
-#             label=None
-#         )
-#     ).decode("utf-8")
-
-
 def decrypt(encryption):
-    key = open("server/app/serverPrivateKey.pem").read()
+    key = open(path + "serverPrivateKey.pem").read()
     key = key.replace("-----BEGIN RSA PRIVATE KEY-----", "").replace("-----END RSA PRIVATE KEY-----", "").replace("\n", "")
     key = b64decode(key)
     key = RSA.importKey(key)
