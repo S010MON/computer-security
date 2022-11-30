@@ -1,5 +1,9 @@
 # Computer Security - Client/Server Project
 
+A simple counter app where multiple users can login using a client and modify their counter by incrementing either up or down securely
+
+![Screenshot from 2022-11-05 11-10-52](https://user-images.githubusercontent.com/10490509/204767089-3dc6a2f1-12c5-4daf-9f51-c9497a703b9d.png)
+
 ## API Specification
 There are 4 request URLs:
  - ![/auth](https://github.com/S010MON/computer-security/blob/main/README.md#auth)
